@@ -139,16 +139,39 @@ class Order:
 
 
 def test1():
+    # orders = [
+    #     Order(id="1", tix_count= 1, tix_type= "VIP", order_time=12331, pay_time=12339),
+    #     Order(id="2", tix_count= 2, tix_type= "VIP", order_time=12341, pay_time=12349),
+    #     Order(id="3", tix_count= 3, tix_type= "VIP", order_time=12351, pay_time=12359),
+    #     Order(id="4", tix_count= 3, tix_type= "VIP", order_time=12361, pay_time=12369),
+    #     Order(id="5", tix_count= 2, tix_type= "VIP", order_time=12371, pay_time=12379),
+    #     Order(id="6", tix_count= 2, tix_type= "VIP", order_time=12381, pay_time=12389),
+    #     Order(id="7", tix_count= 3, tix_type= "VIP", order_time=12391, pay_time=12399),
+    #     Order(id="8", tix_count= 1, tix_type= "VIP", order_time=12491, pay_time=12499),
+    #     Order(id="9", tix_count= 1, tix_type= "VIP", order_time=12591, pay_time=12599),
+    # ]
+
+    # 怎么排都不能连座
+    # orders = [
+    #     Order(id="1", tix_count= 3, tix_type= "VIP", order_time=12331, pay_time=12339),
+    #     Order(id="2", tix_count= 3, tix_type= "VIP", order_time=12341, pay_time=12349),
+    #     Order(id="3", tix_count= 3, tix_type= "VIP", order_time=12351, pay_time=12359),
+    #     Order(id="4", tix_count= 3, tix_type= "VIP", order_time=12361, pay_time=12369),
+    #     Order(id="5", tix_count= 2, tix_type= "VIP", order_time=12361, pay_time=12369),
+    #     Order(id="6", tix_count= 2, tix_type= "VIP", order_time=12361, pay_time=12369),
+    #     Order(id="7", tix_count= 2, tix_type= "VIP", order_time=12361, pay_time=12369),
+    # ]
+
+    # 可以连座
     orders = [
-        Order(id="1", tix_count= 1, tix_type= "VIP", order_time=12331, pay_time=12339),
-        Order(id="2", tix_count= 2, tix_type= "VIP", order_time=12341, pay_time=12349),
+        Order(id="1", tix_count= 3, tix_type= "VIP", order_time=12331, pay_time=12339),
+        Order(id="2", tix_count= 3, tix_type= "VIP", order_time=12341, pay_time=12349),
         Order(id="3", tix_count= 3, tix_type= "VIP", order_time=12351, pay_time=12359),
         Order(id="4", tix_count= 3, tix_type= "VIP", order_time=12361, pay_time=12369),
-        Order(id="5", tix_count= 2, tix_type= "VIP", order_time=12371, pay_time=12379),
-        Order(id="6", tix_count= 2, tix_type= "VIP", order_time=12381, pay_time=12389),
-        Order(id="7", tix_count= 3, tix_type= "VIP", order_time=12391, pay_time=12399),
-        Order(id="8", tix_count= 1, tix_type= "VIP", order_time=12491, pay_time=12499),
-        Order(id="9", tix_count= 1, tix_type= "VIP", order_time=12591, pay_time=12599),
+        Order(id="5", tix_count= 2, tix_type= "VIP", order_time=12361, pay_time=12369),
+        Order(id="6", tix_count= 2, tix_type= "VIP", order_time=12361, pay_time=12369),
+        Order(id="7", tix_count= 1, tix_type= "VIP", order_time=12361, pay_time=12369),
+        Order(id="8", tix_count= 1, tix_type= "VIP", order_time=12361, pay_time=12369),
     ]
 
 
