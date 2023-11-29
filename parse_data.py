@@ -75,28 +75,70 @@ def make_2darray(area_sorts, areas_map):
     total_rows = 0
     max_column = 0
     row_map = {} # 记录不同行对于的区域
-    for _, v in areas_map:
+    rows_cols = []
+    ret_array = []
+    row_start_index = 0
+    for area in area_sorts:
+        v = areas_map[area]
+
         # 行
         total_rows += len(v['row'])
         for i in range(len(v['row'])):
-
+            row_map[list(v['row'])[i]] = row_start_index + i
             pass
+        row_start_index += len(v['row'])
+
+        # 记录行数
+        rows_cols.append( (len(v['row']), len(v['column']) ))
 
         # 列
         if len(v['column']) > max_column:
             max_column = len(v['column'])
-        if max(v['column']) > max_column:
+        if max(list(map(int, v['column']))) > max_column:
             # 有些可能不连续, 仍然按照最多列数
             max_column = max(v['column'])
 
-    pass
+
+    pprint(rows_cols)
+
+    # 初始化二维数组
+    cur_idx = 0
+    for area in area_sorts:
+        v = areas_map[area]
+        for r in range( rows_cols[cur_idx][0] ):
+            tmp_row = ['O']*max_column
+
+            # 将，超出本区域的位置设置为 X
+            if max_column > rows_cols[cur_idx][1]:
+                for i in range(rows_cols[cur_idx][1], max_column):
+                    tmp_row[i] = 'X'
+                    pass
+
+            ret_array.append( tmp_row )
+            pass
+        cur_idx += 1
+
+    return ret_array
+
+
 
 
 
 def main():
     # parse_order_data('./data/order_data.csv')
     am = parse_seats_data('./data/seats.csv')
-    pprint(am)
+    area_sorts = ['113', '114', '112', '111', '110', '109']
+    array = make_2darray(area_sorts, am)
+    # pprint(array)
+    for r in range(len(array)):
+        output = ''
+        for c in range(len(array[0])):
+            output += '{}'.format(array[r][c])
+            if c != len(array[0]) - 1:
+                output += ','
+        print(output)
+
+
     pass
 
 if __name__ == '__main__':
