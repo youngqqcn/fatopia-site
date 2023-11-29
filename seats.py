@@ -72,6 +72,32 @@ def arrange_seats_v1(area, seats, ords):
     return seats, orders_queue
 
 
+def convert_solution_to_csv(area, seats, orders, row_index_name_map,  outfile):
+
+    # 将orders转为 以order.id 为key的dict
+    orders_map = { ord.id :  ord for ord in orders   }
+
+
+    for row in range(len(seats)):
+        for col in range(len(seats[row])):
+
+            # 获取 座位ID
+            id = seats[row][col]
+            if id == 'X' : continue
+
+            seat_id = -1
+            o = orders_map[id]
+            seat_id = o.seat_ids.pop(0)
+
+            # 更新
+            orders_map[id] = o
+
+            line = '{},{},{},{},{}\n'.format(id, seat_id, area, row_index_name_map[row], col)
+            # print(line.strip())
+            outfile.write(line)
+    pass
+
+
 def check_seats(seats):
     """检查是否有不连座的"""
     #TODO: 检查是否有漏

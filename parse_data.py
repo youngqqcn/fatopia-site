@@ -3,12 +3,14 @@ import csv
 from pprint import pprint
 
 class Order:
-    def __init__(self, id, tix_count, tix_type, order_time, pay_time):
+    def __init__(self, id, raw_order_id, tix_count, tix_type, order_time, pay_time, seat_ids  ):
         self.id = id
+        self.raw_order_id = raw_order_id
         self.tix_count = tix_count
         self.tix_type = tix_type
         self.order_time = order_time
         self.pay_time = pay_time
+        self.seat_ids = seat_ids
 
         pass
 
@@ -25,6 +27,7 @@ def parse_order_data(path):
     orders = []
     order_tix_count_map = {}
     order_info = []
+    order_seatids_map = {}   # 订单id 和 座位id 映射
 
     with open(path, 'r') as file:
         reader = csv.reader(file)
@@ -40,17 +43,26 @@ def parse_order_data(path):
             if order_id not in order_tix_count_map:
                 order_tix_count_map[order_id] = 1
                 order_info.append( row )
+
+                # 座位id
+                order_seatids_map[order_id] = [ row[0] ]
             else:
                 order_tix_count_map[order_id] += 1
-
+                order_seatids_map[order_id].append( row[0] )
 
     # 将order用编号代替
     cur_ord_id = 1
     for o in order_info:
-        ord = Order(id= '%03d'% cur_ord_id, tix_count=order_tix_count_map[o[4]], order_time=o[2], pay_time=0, tix_type='PS')
+        ord = Order(id= '%03d'% cur_ord_id,
+                    raw_order_id = o[4],
+                    tix_count=order_tix_count_map[o[4]],
+                    order_time=o[2],
+                    pay_time=0,
+                    tix_type='PS',
+                    seat_ids= order_seatids_map[o[4]]
+                    )
         orders.append(ord)
         cur_ord_id += 1
-
     return orders
 
 
@@ -96,7 +108,9 @@ def parse_seats_data(path, area):
         # 设置 'O'
         seats_2d_array[row_idx][col_idx] = 'O'
 
-    return seats_2d_array
+    # 将key:value 换成 value:key
+    row_index_name_map = dict(zip(row_name_index_map.values(), row_name_index_map.keys()))
+    return seats_2d_array, row_index_name_map
 
 
 
