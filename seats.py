@@ -14,10 +14,15 @@ from parse_data import parse_order_data, parse_seats_data
 
 
 def sort_by_time(ods):
-
-    # 根据订单的时间排序
-    ods = sorted(ods)
+    # 根据订单的时间排序, 默认是升序排序的
+    # ods = sorted(ods, key=lambda o: o.create_time, reverse=False)
     return ods
+
+def sort_by_tix_count(ods):
+    """根据订单的票数排序"""
+    # 按照订单降序排序
+    r = sorted(ods, key=lambda o: o.tix_count, reverse=True)
+    return r
 
 
 def arrange_seats(seats, ords):
@@ -54,6 +59,15 @@ def arrange_seats_v1(seats, ords):
 stop_flag = False
 
 def arrange_seats_v2(allseats, allords):
+
+    # 先根据时间升序排序
+    allords = sort_by_time(allords)
+
+    # 再根据订单的票数降序排序
+    allords = sort_by_tix_count(allords)
+    pprint(allords)
+
+
     global stop_flag
     stop_flag = False
 
