@@ -51,20 +51,27 @@ def arrange_seats_v1(seats, ords):
     pass
 
 
+stop_flag = False
+
 def arrange_seats_v2(allseats, allords):
+    global stop_flag
+    stop_flag = False
 
     # 使用回溯，搜索所有可行方案
     def backtracking(ords):
+        global stop_flag
         # 结束条件
         if len(ords) == 0:
             if check_seats(seats=allseats):
                 # print('======解:\n')
                 # pprint(allseats)
                 show_solution(allseats)
+                stop_flag = True
             return
 
-
         for i in range(len(ords)):
+            if stop_flag: return
+
             ord = ords[i]
             # 已经找不到可排座位
             # print('order is :{}, tix_count: {}'.format(ord.id, ord.tix_count))
@@ -196,12 +203,13 @@ def test1():
 def test2():
 
 
-    arranged_ord = set()
+    arranged_ord_ids = set()
     area_sorts = ['113', '114', '112', '111', '110', '109']
     for a in area_sorts:
         tmp_area_sorts = [a]
 
         seats = make_2darray(tmp_area_sorts, parse_seats_data('./data/seats.csv'))
+        show_solution(seats)
 
         orders = parse_order_data('./data/order_data.csv')
 
@@ -211,18 +219,24 @@ def test2():
         new_orders = []
         sum = 0
         for i in range(len(orders)):
-            if sum + orders[i].tix_count == seats_count:
-                new_orders.append(orders[i])
+            ord = orders[i]
+            if ord.id in arranged_ord_ids:
+                continue
+
+            if sum + ord.tix_count == seats_count:
+                new_orders.append(ord)
+                arranged_ord_ids.add(ord.id)
                 break
-            elif sum + orders[i].tix_count > seats_count: # 当前的太大，往后找个小的来补充
+            elif sum + ord.tix_count > seats_count: # 当前的太大，往后找个小的来补充
                 continue
             else:
-                new_orders.append(orders[i])
-                sum += orders[i].tix_count
+                new_orders.append(ord)
+                sum += ord.tix_count
+                arranged_ord_ids.add(ord.id)
 
         print('----------')
         print('{}区共{}笔订单'.format(a, len(new_orders)))
-        pprint(new_orders)
+        # pprint(new_orders)
         print('----------')
 
         new_seats = arrange_seats_v2(allseats=seats, allords=new_orders)
