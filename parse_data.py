@@ -76,6 +76,9 @@ def parse_seats_data(path):
                 areas_map[ area ] = r[0]
                 areas_map[area] = {'row': set([row]), 'column': set([column]) }
             else:
+                # TODO: 目前仅处理一个区域  ======== ！！！！！！！！！！！！
+                # break
+
                 areas_map[area]['row'].add( row )
                 areas_map[area]['column'].add( column )
 
@@ -143,22 +146,23 @@ def make_2darray(area_sorts, areas_map):
 
 
 def main():
-    ol = parse_order_data('./data/order_data.csv')
-    pprint(ol)
-    print('========== {}'.format(len(ol)))
+    # ol = parse_order_data('./data/order_data.csv')
+    # pprint(ol)
+    # print('========== {}'.format(len(ol)))
 
-    # am = parse_seats_data('./data/seats.csv')
+    am = parse_seats_data('./data/seats.csv')
     # area_sorts = ['113', '114', '112', '111', '110', '109']
-    # array = make_2darray(area_sorts, am)
-    # # pprint(array)
-    # for r in range(len(array)):
-    #     output = ''
-    #     for c in range(len(array[0])):
-    #         output += '{}'.format(array[r][c])
-    #         if c != len(array[0]) - 1:
-    #             output += ','
-    #     print(output)
-    # pass
+    area_sorts = ['113']
+    array = make_2darray(area_sorts, am)
+    # pprint(array)
+    for r in range(len(array)):
+        output = ''
+        for c in range(len(array[0])):
+            output += '{}'.format(array[r][c])
+            if c != len(array[0]) - 1:
+                output += ','
+        print(output)
+    pass
 
 if __name__ == '__main__':
     main()

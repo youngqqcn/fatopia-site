@@ -58,8 +58,9 @@ def arrange_seats_v2(allseats, allords):
         # 结束条件
         if len(ords) == 0:
             if check_seats(seats=allseats):
-                print('======解:\n')
-                pprint(allseats)
+                # print('======解:\n')
+                # pprint(allseats)
+                show_solution(allseats)
             return
 
 
@@ -92,9 +93,11 @@ def search(a, tix_count):
     # print('search:{}\n'.format(tix_count))
     for row in range(len(a)):
         for col in range(len(a[row])):
+            if a[row][col] == 'X':
+                break
             if a[row][col] == 'O':
                 end = col + tix_count
-                if end <= len(a[row]):
+                if end <= len(a[row]) and a[row][end - 1] != 'X':
                     # print('len(a[row]) is {}'.format(len(a[row])))
                     return row, col, end
     # TODO: 如果没有找到合适的位置
@@ -121,6 +124,18 @@ def check_seats(seats):
             if len(row_map[id]) > 2:
                 return False
     return True
+
+def show_solution(new_seats):
+    print('===============')
+    array = new_seats
+    for r in range(len(array)):
+        output = ''
+        for c in range(len(array[0])):
+            output += '{}'.format(array[r][c])
+            if c != len(array[0]) - 1:
+                output += ','
+        print(output)
+    print('===============')
 
 
 def test1():
@@ -177,30 +192,41 @@ def test1():
 
 
 
+
 def test2():
 
+
+    arranged_ord = set()
     area_sorts = ['113', '114', '112', '111', '110', '109']
+    for a in area_sorts:
+        tmp_area_sorts = [a]
 
-    seats = make_2darray(area_sorts, parse_seats_data('./data/seats.csv'))
+        seats = make_2darray(tmp_area_sorts, parse_seats_data('./data/seats.csv'))
 
-    orders = parse_order_data('./data/order_data.csv')
-    print('----------')
-    pprint(orders)
-    print('----------')
+        orders = parse_order_data('./data/order_data.csv')
 
+        seats_count = len(seats) * len(seats[0])
+        print('seats_count is {}'.format(seats_count))
 
-    new_seats = arrange_seats_v2(allseats=seats, allords=orders)
-    print('===============\n\n')
+        new_orders = []
+        sum = 0
+        for i in range(len(orders)):
+            if sum + orders[i].tix_count == seats_count:
+                new_orders.append(orders[i])
+                break
+            elif sum + orders[i].tix_count > seats_count: # 当前的太大，往后找个小的来补充
+                continue
+            else:
+                new_orders.append(orders[i])
+                sum += orders[i].tix_count
 
-    # pprint(new_seats)
-    # array = new_seats
-    # for r in range(len(array)):
-    #     output = ''
-    #     for c in range(len(array[0])):
-    #         output += '{}'.format(array[r][c])
-    #         if c != len(array[0]) - 1:
-    #             output += ','
-    #     print(output)
+        print('----------')
+        print('{}区共{}笔订单'.format(a, len(new_orders)))
+        pprint(new_orders)
+        print('----------')
+
+        new_seats = arrange_seats_v2(allseats=seats, allords=new_orders)
+        print('===============\n\n')
 
     pass
 
