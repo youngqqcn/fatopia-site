@@ -54,92 +54,51 @@ def parse_order_data(path):
     return orders
 
 
-def parse_seats_data(path):
-    """解析座位数据"""
+def parse_seats_data(path, area):
+    """解析csv数据, 获取该区域的数据"""
 
-    areas_map = {}
-
-    # 获取不同区域
+    area_seats = [] # 保存当前区域的座位CSV原始数据
     with open(path, 'r') as file:
         reader = csv.reader(file)
-        line = 0
         for r in reader:
-            # 不解析首行
-            if line == 0:
-                line += 1
-                continue
+            # 过滤不是该区域的数据
+            if r[0] != area: continue
+            area_seats.append(r)
 
-            area = r[0]
-            row = r[1]
-            column = r[2]
-            if area not in areas_map:
-                areas_map[ area ] = r[0]
-                areas_map[area] = {'row': set([row]), 'column': set([column]) }
-            else:
-                # TODO: 目前仅处理一个区域  ======== ！！！！！！！！！！！！
-                # break
+    # 获取该区域的行数和列数
+    area_rows = 0 # 当前区域的总行数
+    area_colunms = 0  # 当前区域总列数
+    row_name_index_map = {} # 用于记录行名对应行索引
+    if True:
+        for s in area_seats:
+            if s[1] not in row_name_index_map:
+                # 记录行名对应行索引
+                row_name_index_map[s[1]] = len(row_name_index_map)
 
-                areas_map[area]['row'].add( row )
-                areas_map[area]['column'].add( column )
+                # 增加行数
+                area_rows += 1
 
-    return areas_map
+            # 获取最大列数
+            if int(s[2]) > area_colunms:
+                area_colunms = int(s[2])
 
+    # 构造二维数组
+    seats_2d_array = []
+    for _ in range(area_rows):
+        # 这里默认将所有作为设置 'X',
+        seats_2d_array.append( ['X'] * area_colunms )
 
-def make_2darray(area_sorts, areas_map):
-    """
-    将同一票型不同区域合并,构建一个2维数组
-    根据区域的优先级顺序,依次构建
-    列数, 取决于列数最多的区域
-    那列数不够的, 用标记符号填充
-    """
+    # 将存在的座位放开, 设置为 'O'
+    for s in area_seats:
+        row_idx = row_name_index_map[ s[1] ]
+        col_idx = int(s[2]) - 1
 
-    total_rows = 0
-    max_column = 0
-    row_map = {} # 记录不同行对于的区域
-    rows_cols = []
-    ret_array = []
-    row_start_index = 0
-    for area in area_sorts:
-        v = areas_map[area]
+        # 设置 'O'
+        seats_2d_array[row_idx][col_idx] = 'O'
 
-        # 行
-        total_rows += len(v['row'])
-        for i in range(len(v['row'])):
-            row_map[list(v['row'])[i]] = row_start_index + i
-            pass
-        row_start_index += len(v['row'])
-
-        # 记录行数
-        rows_cols.append( (len(v['row']), len(v['column']) ))
-
-        # 列
-        if len(v['column']) > max_column:
-            max_column = len(v['column'])
-        if max(list(map(int, v['column']))) > max_column:
-            # 有些可能不连续, 仍然按照最多列数
-            max_column = max(v['column'])
+    return seats_2d_array
 
 
-    pprint(rows_cols)
-
-    # 初始化二维数组
-    cur_idx = 0
-    for area in area_sorts:
-        v = areas_map[area]
-        for r in range( rows_cols[cur_idx][0] ):
-            tmp_row = ['O']*max_column
-
-            # 将，超出本区域的位置设置为 X
-            if max_column > rows_cols[cur_idx][1]:
-                for i in range(rows_cols[cur_idx][1], max_column):
-                    tmp_row[i] = 'X'
-                    pass
-
-            ret_array.append( tmp_row )
-            pass
-        cur_idx += 1
-
-    return ret_array
 
 
 
@@ -150,11 +109,8 @@ def main():
     # pprint(ol)
     # print('========== {}'.format(len(ol)))
 
-    am = parse_seats_data('./data/seats.csv')
     # area_sorts = ['113', '114', '112', '111', '110', '109']
-    area_sorts = ['113']
-    array = make_2darray(area_sorts, am)
-    # pprint(array)
+    array = parse_seats_data('./data/seats.csv', '113')
     for r in range(len(array)):
         output = ''
         for c in range(len(array[0])):

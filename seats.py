@@ -10,7 +10,7 @@
 
 from pprint import pprint
 from parse_data import Order
-from parse_data import parse_order_data, parse_seats_data, make_2darray
+from parse_data import parse_order_data, parse_seats_data
 
 
 def sort_by_time(ods):
@@ -206,14 +206,19 @@ def test2():
     arranged_ord_ids = set()
     area_sorts = ['113', '114', '112', '111', '110', '109']
     for a in area_sorts:
-        tmp_area_sorts = [a]
 
-        seats = make_2darray(tmp_area_sorts, parse_seats_data('./data/seats.csv'))
+        seats = parse_seats_data(path='./data/seats.csv', area=a)
         show_solution(seats)
 
         orders = parse_order_data('./data/order_data.csv')
 
-        seats_count = len(seats) * len(seats[0])
+        # 统计可用座位数
+        seats_count = 0
+        for r in range(len(seats)):
+            for c in  range(len(seats[r])):
+                if seats[r][c] == 'O':
+                    seats_count += 1
+
         print('seats_count is {}'.format(seats_count))
 
         new_orders = []
@@ -226,6 +231,7 @@ def test2():
             if sum + ord.tix_count == seats_count:
                 new_orders.append(ord)
                 arranged_ord_ids.add(ord.id)
+                sum += ord.tix_count
                 break
             elif sum + ord.tix_count > seats_count: # 当前的太大，往后找个小的来补充
                 continue
@@ -234,8 +240,13 @@ def test2():
                 sum += ord.tix_count
                 arranged_ord_ids.add(ord.id)
 
+        if sum != seats_count:
+            print('订单座位数和区域座位数作为不匹配========{}区,共{}笔订单,{}个座位, 但拿到sum:{}'.format(a, len(new_orders), seats_count, sum))
+            return
+
+
         print('----------')
-        print('{}区共{}笔订单'.format(a, len(new_orders)))
+        print('{}区,共{}笔订单,{}个座位'.format(a, len(new_orders), seats_count))
         # pprint(new_orders)
         print('----------')
 
