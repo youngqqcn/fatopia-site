@@ -24,13 +24,13 @@ def sort_by_time(ods):
 def sort_by_tix_count(ods):
     """根据订单的票数排序"""
     # 按照订单降序排序
-    r = sorted(ods, key=lambda o: o.tix_count, reverse=True)
-    return r
+    # ods = sorted(ods, key=lambda o: o.tix_count, reverse=True)
+    return ods
 
 
 def arrange_seats_v1(area, seats, ords):
     # 假设 ords已经是按照最大订单排序
-    ords = sort_by_tix_count(ords)
+    # ords = sort_by_tix_count(ords)
 
     orders_queue = copy.deepcopy( list(ords))
 
