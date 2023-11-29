@@ -14,6 +14,8 @@ from parse_data import parse_order_data, parse_seats_data
 import copy
 
 
+gloab_orders = parse_order_data('./data/order_data.csv')
+
 def sort_by_time(ods):
     # 根据订单的时间排序, 默认是升序排序的
     # ods = sorted(ods, key=lambda o: o.create_time, reverse=False)
@@ -26,32 +28,7 @@ def sort_by_tix_count(ods):
     return r
 
 
-def arrange_seats(seats, ords):
-    """seats 是二维数组"""
-    a = seats
-
-    #根据时间排序
-    ords = sort_by_time(ords)
-
-    for ord in ords:
-        def search():
-            for row in range(len(a)):
-                for col in range(len(a[0])):
-                    if a[row][col] == 'O':
-                        start_idx = col
-                        end_idx = col + ord.tix_count
-                        if end_idx <= len(a[0]):
-                            for x in range(start_idx, end_idx):
-                                a[row][x] = ord.id
-                            return
-            # TODO: 如果没有找到合适的位置
-            pass
-        search()
-    return a
-
-
-
-def arrange_seats_v1(seats, ords):
+def arrange_seats_v1(area, seats, ords):
     # 假设 ords已经是按照最大订单排序
     ords = sort_by_tix_count(ords)
 
@@ -66,7 +43,6 @@ def arrange_seats_v1(seats, ords):
                 left_pos_count += 1
 
         # 从订单列表中获取  最大且可安排的 的订单
-        # copy_queue = copy.deepcopy( orders_queue)
         selected_ords = []
         for i in range(len(orders_queue)):
             o = orders_queue[i]
@@ -85,11 +61,15 @@ def arrange_seats_v1(seats, ords):
         for o in selected_ords:
             for i in range(o.tix_count):
                 if seats[row][start_col + i] == 'X':
-                    print('============FUCK')
+                    raise Exception("====FUCK======")
                 seats[row][start_col + i] = o.id
             start_col += o.tix_count
 
-    show_solution(seats)
+    show_solution(area, seats)
+
+    # 更新全局订单列表
+    global gloab_orders
+    gloab_orders = copy.deepcopy( orders_queue)
     pass
 
 
@@ -116,8 +96,8 @@ def check_seats(seats):
     return True
 
 
-def show_solution(new_seats):
-    print('===============')
+def show_solution(area, new_seats):
+    print('{}区排座如下：'.format(area))
     array = new_seats
     for r in range(len(array)):
         output = ''
@@ -126,7 +106,6 @@ def show_solution(new_seats):
             if c != len(array[0]) - 1:
                 output += ','
         print(output)
-    print('===============')
 
 
 def test1():
@@ -173,12 +152,9 @@ def test1():
     seats = [['O' for _ in range(cols)] for _ in range(rows)]
     pprint(seats)
 
-    # new_seats = arrange_seats(seats, orders)
-    new_seats = arrange_seats(seats, orders)
+    arrange_seats_v1('A', seats, orders)
 
-    print('===============\n\n')
 
-    pprint(new_seats)
     pass
 
 
@@ -186,16 +162,9 @@ def test1():
 
 def test2():
 
-
-    arranged_ord_ids = set()
-    # area_sorts = ['113', '114', '112', '111', '110', '109']
-    area_sorts = ['113']
+    area_sorts = ['113', '114', '112', '111', '110', '109']
     for a in area_sorts:
-
         seats = parse_seats_data(path='./data/seats.csv', area=a)
-        show_solution(seats)
-
-        orders = parse_order_data('./data/order_data.csv')
 
         # 统计可用座位数
         seats_count = 0
@@ -204,47 +173,18 @@ def test2():
                 if seats[r][c] == 'O':
                     seats_count += 1
 
-        print('seats_count is {}'.format(seats_count))
+        print()
+        print('{}区,共{}笔订单,{}个座位'.format(a, len(gloab_orders), seats_count))
 
-        new_orders = []
-        sum = 0
-        for i in range(len(orders)):
-            ord = orders[i]
-            if ord.id in arranged_ord_ids:
-                continue
-
-            if sum + ord.tix_count == seats_count:
-                new_orders.append(ord)
-                arranged_ord_ids.add(ord.id)
-                sum += ord.tix_count
-                break
-            elif sum + ord.tix_count > seats_count: # 当前的太大，往后找个小的来补充
-                continue
-            else:
-                new_orders.append(ord)
-                sum += ord.tix_count
-                arranged_ord_ids.add(ord.id)
-
-        if sum != seats_count:
-            print('订单座位数和区域座位数作为不匹配========{}区,共{}笔订单,{}个座位, 但拿到sum:{}'.format(a, len(new_orders), seats_count, sum))
-            return
-
-
-        print('----------')
-        print('{}区,共{}笔订单,{}个座位'.format(a, len(new_orders), seats_count))
-        # pprint(new_orders)
-        print('----------')
-
-        new_seats = arrange_seats_v2(allseats=seats, allords=new_orders)
-        print('===============\n\n')
+        new_seats = arrange_seats_v1(area=a, seats=seats, ords=gloab_orders)
 
     pass
 
 
 
 def main():
-    test1()
-    # test2()
+    # test1()
+    test2()
     pass
 
 if __name__ == '__main__':
