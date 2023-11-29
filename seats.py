@@ -9,15 +9,14 @@
 
 
 from pprint import pprint
+from parse_data import Order
+from parse_data import parse_order_data, parse_seats_data, make_2darray
 
 
 def sort_by_time(ods):
 
     # 根据订单的时间排序
     ods = sorted(ods)
-
-
-
     return ods
 
 
@@ -32,7 +31,7 @@ def arrange_seats(seats, ords):
         def search():
             for row in range(len(a)):
                 for col in range(len(a[0])):
-                    if a[row][col] == '':
+                    if a[row][col] == 'O':
                         start_idx = col
                         end_idx = col + ord.tix_count
                         if end_idx <= len(a[0]):
@@ -67,6 +66,7 @@ def arrange_seats_v2(allseats, allords):
         for i in range(len(ords)):
             ord = ords[i]
             # 已经找不到可排座位
+            # print('order is :{}, tix_count: {}'.format(ord.id, ord.tix_count))
             row, start, end = search(allseats, ord.tix_count)
             if row == -1 or start == -1 or end == -1:
                 return
@@ -81,7 +81,7 @@ def arrange_seats_v2(allseats, allords):
 
             # 撤销选择
             for x in range(start, end):
-                allseats[row][x] = ''
+                allseats[row][x] = 'O'
 
 
     backtracking(ords=allords)
@@ -89,9 +89,10 @@ def arrange_seats_v2(allseats, allords):
 
 
 def search(a, tix_count):
+    # print('search:{}\n'.format(tix_count))
     for row in range(len(a)):
         for col in range(len(a[row])):
-            if a[row][col] == '':
+            if a[row][col] == 'O':
                 end = col + tix_count
                 if end <= len(a[row]):
                     # print('len(a[row]) is {}'.format(len(a[row])))
@@ -107,7 +108,7 @@ def check_seats(seats):
     for row in range(len(seats)):
         for col in range(len(seats[row])):
             id = seats[row][col]
-            if id == '':
+            if id == 'O':
                 return False
 
             if id not in row_map:
@@ -120,22 +121,6 @@ def check_seats(seats):
             if len(row_map[id]) > 2:
                 return False
     return True
-
-
-class Order:
-    def __init__(self, id, tix_count, tix_type, order_time, pay_time):
-        self.id = id
-        self.tix_count = tix_count
-        self.tix_type = tix_type
-        self.order_time = order_time
-        self.pay_time = pay_time
-
-        pass
-
-    def __lt__(self, other):
-        return self.order_time < other.order_time
-
-
 
 
 def test1():
@@ -179,7 +164,7 @@ def test1():
     # seats = [['']*3]*6    # 这种方式有问题，内部用的引用，他妈的
     rows = 6
     cols = 3
-    seats = [['' for _ in range(cols)] for _ in range(rows)]
+    seats = [['O' for _ in range(cols)] for _ in range(rows)]
     pprint(seats)
 
     # new_seats = arrange_seats(seats, orders)
@@ -191,8 +176,39 @@ def test1():
     pass
 
 
+
+def test2():
+
+    area_sorts = ['113', '114', '112', '111', '110', '109']
+
+    seats = make_2darray(area_sorts, parse_seats_data('./data/seats.csv'))
+
+    orders = parse_order_data('./data/order_data.csv')
+    print('----------')
+    pprint(orders)
+    print('----------')
+
+
+    new_seats = arrange_seats_v2(allseats=seats, allords=orders)
+    print('===============\n\n')
+
+    # pprint(new_seats)
+    # array = new_seats
+    # for r in range(len(array)):
+    #     output = ''
+    #     for c in range(len(array[0])):
+    #         output += '{}'.format(array[r][c])
+    #         if c != len(array[0]) - 1:
+    #             output += ','
+    #     print(output)
+
+    pass
+
+
+
 def main():
-    test1()
+    # test1()
+    test2()
     pass
 
 if __name__ == '__main__':

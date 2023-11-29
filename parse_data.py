@@ -2,7 +2,21 @@
 import csv
 from pprint import pprint
 
-from seats import Order
+class Order:
+    def __init__(self, id, tix_count, tix_type, order_time, pay_time):
+        self.id = id
+        self.tix_count = tix_count
+        self.tix_type = tix_type
+        self.order_time = order_time
+        self.pay_time = pay_time
+
+        pass
+
+    def __lt__(self, other):
+        return self.order_time < other.order_time
+
+    def __repr__(self):
+        return 'id:{},tix_count:{}'.format(self.id, self.tix_count)
 
 
 def parse_order_data(path):
@@ -29,9 +43,13 @@ def parse_order_data(path):
             else:
                 order_tix_count_map[order_id] += 1
 
+
+    # 将order用编号代替
+    cur_ord_id = 1
     for o in order_info:
-        ord = Order(id=o[4], tix_count=order_tix_count_map[o[4]], order_time=o[2], pay_time=0)
+        ord = Order(id= '%03d'% cur_ord_id, tix_count=order_tix_count_map[o[4]], order_time=o[2], pay_time=0, tix_type='PS')
         orders.append(ord)
+        cur_ord_id += 1
 
     return orders
 
@@ -125,21 +143,22 @@ def make_2darray(area_sorts, areas_map):
 
 
 def main():
-    # parse_order_data('./data/order_data.csv')
-    am = parse_seats_data('./data/seats.csv')
-    area_sorts = ['113', '114', '112', '111', '110', '109']
-    array = make_2darray(area_sorts, am)
-    # pprint(array)
-    for r in range(len(array)):
-        output = ''
-        for c in range(len(array[0])):
-            output += '{}'.format(array[r][c])
-            if c != len(array[0]) - 1:
-                output += ','
-        print(output)
+    ol = parse_order_data('./data/order_data.csv')
+    pprint(ol)
+    print('========== {}'.format(len(ol)))
 
-
-    pass
+    # am = parse_seats_data('./data/seats.csv')
+    # area_sorts = ['113', '114', '112', '111', '110', '109']
+    # array = make_2darray(area_sorts, am)
+    # # pprint(array)
+    # for r in range(len(array)):
+    #     output = ''
+    #     for c in range(len(array[0])):
+    #         output += '{}'.format(array[r][c])
+    #         if c != len(array[0]) - 1:
+    #             output += ','
+    #     print(output)
+    # pass
 
 if __name__ == '__main__':
     main()
