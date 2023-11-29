@@ -11,6 +11,7 @@
 from pprint import pprint
 from parse_data import Order
 from parse_data import parse_order_data, parse_seats_data
+import copy
 
 
 def sort_by_time(ods):
@@ -51,78 +52,46 @@ def arrange_seats(seats, ords):
 
 
 def arrange_seats_v1(seats, ords):
+    # 假设 ords已经是按照最大订单排序
+    ords = sort_by_tix_count(ords)
+
+    orders_queue = copy.deepcopy( list(ords))
+
     # 使用贪心算法
+    for row in range( len(seats) ):
+        # 当前行剩余数量
+        left_pos_count = 0
+        for col in range(len(seats[0])):
+            if seats[row][col] == 'O':
+                left_pos_count += 1
 
+        # 从订单列表中获取  最大且可安排的 的订单
+        # copy_queue = copy.deepcopy( orders_queue)
+        selected_ords = []
+        for i in range(len(orders_queue)):
+            o = orders_queue[i]
+
+            # TODO: 假设中间都是连续的不间断的, 如果是间断的则用分治算法
+            if o.tix_count <= left_pos_count:
+                selected_ords.append(o)
+                left_pos_count -= o.tix_count
+
+        # 删除元素
+        for o in selected_ords:
+            orders_queue.remove(o)
+
+        # 安排座位
+        start_col = 0
+        for o in selected_ords:
+            for i in range(o.tix_count):
+                if seats[row][start_col + i] == 'X':
+                    print('============FUCK')
+                seats[row][start_col + i] = o.id
+            start_col += o.tix_count
+
+    show_solution(seats)
     pass
 
-
-stop_flag = False
-
-def arrange_seats_v2(allseats, allords):
-
-    # 先根据时间升序排序
-    allords = sort_by_time(allords)
-
-    # 再根据订单的票数降序排序
-    allords = sort_by_tix_count(allords)
-    pprint(allords)
-
-
-    global stop_flag
-    stop_flag = False
-
-    # 使用回溯，搜索所有可行方案
-    def backtracking(ords):
-        global stop_flag
-        # 结束条件
-        if len(ords) == 0:
-            if check_seats(seats=allseats):
-                # print('======解:\n')
-                # pprint(allseats)
-                show_solution(allseats)
-                stop_flag = True
-            return
-
-        for i in range(len(ords)):
-            if stop_flag: return
-
-            ord = ords[i]
-            # 已经找不到可排座位
-            # print('order is :{}, tix_count: {}'.format(ord.id, ord.tix_count))
-            row, start, end = search(allseats, ord.tix_count)
-            if row == -1 or start == -1 or end == -1:
-                return
-
-            # 如果找到了可排座位, 占座位
-            for x in range(start, end):
-                # print('{} {}, x is {}'.format(start, end , x))
-                allseats[row][x] = ord.id
-
-            # 继续递归
-            backtracking(ords[i+1:])
-
-            # 撤销选择
-            for x in range(start, end):
-                allseats[row][x] = 'O'
-
-
-    backtracking(ords=allords)
-    pass
-
-
-def search(a, tix_count):
-    # print('search:{}\n'.format(tix_count))
-    for row in range(len(a)):
-        for col in range(len(a[row])):
-            if a[row][col] == 'X':
-                break
-            if a[row][col] == 'O':
-                end = col + tix_count
-                if end <= len(a[row]) and a[row][end - 1] != 'X':
-                    # print('len(a[row]) is {}'.format(len(a[row])))
-                    return row, col, end
-    # TODO: 如果没有找到合适的位置
-    return -1, -1, -1
 
 
 
@@ -145,6 +114,7 @@ def check_seats(seats):
             if len(row_map[id]) > 2:
                 return False
     return True
+
 
 def show_solution(new_seats):
     print('===============')
@@ -204,7 +174,7 @@ def test1():
     pprint(seats)
 
     # new_seats = arrange_seats(seats, orders)
-    new_seats = arrange_seats_v2(seats, orders)
+    new_seats = arrange_seats(seats, orders)
 
     print('===============\n\n')
 
@@ -218,7 +188,8 @@ def test2():
 
 
     arranged_ord_ids = set()
-    area_sorts = ['113', '114', '112', '111', '110', '109']
+    # area_sorts = ['113', '114', '112', '111', '110', '109']
+    area_sorts = ['113']
     for a in area_sorts:
 
         seats = parse_seats_data(path='./data/seats.csv', area=a)
@@ -272,8 +243,8 @@ def test2():
 
 
 def main():
-    # test1()
-    test2()
+    test1()
+    # test2()
     pass
 
 if __name__ == '__main__':
