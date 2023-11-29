@@ -30,6 +30,10 @@ def sort_by_tix_count(ods):
 
 
 def arrange_seats_v1(area, seats, ords):
+    """
+    排座核心算法
+    """
+
     # 假设 ords已经是按照最大订单排序
     # ords = sort_by_tix_count(ords)
 
