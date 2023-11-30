@@ -1,9 +1,13 @@
 #coding:utf8
+#author: yqq
+#date: 2023-11-30
+#desc: 解析数据
+
 import csv
-from pprint import pprint
 import copy
 import os
 import pandas as pd
+
 class Order:
     def __init__(self, id, raw_order_id, tix_count, tix_type, order_time, pay_time, seat_ids  ):
         self.id = id
