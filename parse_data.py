@@ -94,31 +94,43 @@ def parse_seats_data(path, area, special_row_sorts_map):
             area_seats.append(r)
 
     # 获取该区域的行数和列数
-    area_rows = 0 # 当前区域的总行数
-    area_colunms = 0  # 当前区域总列数
+    area_rows_counter = 0 # 当前区域的总行数
+    area_colunms_max = 0  # 当前区域总列数, 获取最大的列编号，作为列
     row_name_index_map = {} # 用于记录行名对应行索引
+
     if True:
+        # TODO: 目前的优先级只细化到 行(排)级别, 如果有特殊情况需要精确到列级别可以，再说
+        # 如果该区域没有设置 行的特殊排序，则按照字母(有些是数字)顺序排序, 因此需要获取所有行名(字母或数字)
+        if area not in special_row_sorts_map:
+            row_sorts = set()
+            for s in area_seats:
+                row_name = s[1]
+                row_sorts.add(row_name)
+                pass
+            # 不管是字母还是数字， 按默认升序排序,
+            row_sorts = sorted(row_sorts )
+            special_row_sorts_map[ area ] = row_sorts
+
         for s in area_seats:
-            if s[1] not in row_name_index_map:
-                if area in special_row_sorts_map:
-                    # 特殊 行排序
-                    row_name_index_map[s[1]] = special_row_sorts_map[area].index( s[1])
-                else:
-                    # 记录行名对应行索引
-                    row_name_index_map[s[1]] = len(row_name_index_map)
+            row_name = s[1]
+
+            if row_name not in row_name_index_map:
+                # 记录行名对应行索引
+                row_name_index_map[row_name] = special_row_sorts_map[area].index( row_name )
 
                 # 增加行数
-                area_rows += 1
+                area_rows_counter += 1
 
             # 获取最大列数
-            if int(s[2]) > area_colunms:
-                area_colunms = int(s[2])
+            col_name = s[2]
+            if int(col_name) > area_colunms_max:
+                area_colunms_max = int(col_name)
 
     # 构造二维数组
     seats_2d_array = []
-    for _ in range(area_rows):
+    for _ in range(area_rows_counter):
         # 这里默认将所有作为设置 'X',
-        seats_2d_array.append( ['X'] * area_colunms )
+        seats_2d_array.append( ['X'] * area_colunms_max )
 
     # 将存在的座位放开, 设置为 'O'
     for s in area_seats:
