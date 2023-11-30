@@ -94,7 +94,7 @@ class Widget(QWidget):
         print( '文件路径:{}'.format( file_path ))
 
         # 校验数据文件格式
-        f = open(file_path, 'r')
+        f = open(file_path, 'r', encoding='utf-8')
         lines = f.readlines()
         f.close()
         l = lines[0].split(',')
@@ -127,7 +127,7 @@ class Widget(QWidget):
         print( '文件路径:{}'.format( file_path ))
 
         # 校验数据文件格式
-        f = open(file_path, 'r')
+        f = open(file_path, 'r', encoding='utf-8')
         lines = f.readlines()
         f.close()
         l = lines[0].split(',')
@@ -274,7 +274,7 @@ class Widget(QWidget):
                 return
 
             # 执行命令打开文件管理器
-            subprocess.run([command, './'])
+            subprocess.run([command, os.getcwd()])
         pass
 
 
