@@ -82,7 +82,7 @@ def parse_order_data(path):
     return orders
 
 
-def parse_seats_data(path, area):
+def parse_seats_data(path, area, special_row_sorts_map):
     """解析csv数据, 获取该区域的数据"""
 
     area_seats = [] # 保存当前区域的座位CSV原始数据
@@ -100,8 +100,12 @@ def parse_seats_data(path, area):
     if True:
         for s in area_seats:
             if s[1] not in row_name_index_map:
-                # 记录行名对应行索引
-                row_name_index_map[s[1]] = len(row_name_index_map)
+                if area in special_row_sorts_map:
+                    # 特殊 行排序
+                    row_name_index_map[s[1]] = special_row_sorts_map[area].index( s[1])
+                else:
+                    # 记录行名对应行索引
+                    row_name_index_map[s[1]] = len(row_name_index_map)
 
                 # 增加行数
                 area_rows += 1

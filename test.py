@@ -14,11 +14,17 @@ class TestAddNumbers(unittest.TestCase):
         gloab_orders = parse_order_data('./data/order_data.csv')
         backup_orders = copy.deepcopy(gloab_orders)
 
+        # 区域顺序
         area_sorts = ['113', '114', '112', '111', '110', '109']
+
+        # 行顺序, 如果不设置，就按照字母顺序
+        special_row_sorts_map = {
+            '109': ['G','H','J','K', 'L', 'M', 'N', 'P', 'Q', 'B', 'C']
+        }
 
         total_csv = {}
         for a in area_sorts:
-            seats, row_index_name_map = parse_seats_data(path='./data/seats.csv', area=a)
+            seats, row_index_name_map = parse_seats_data(path='./data/seats.csv', area=a, special_row_sorts_map=special_row_sorts_map)
 
             # 统计可用座位数
             seats_count = 0
