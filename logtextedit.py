@@ -14,6 +14,8 @@ class LogTextEdit(QTextEdit):
 
         # 将输出重定向到自定义的 QTextEdit 控件
         sys.stdout = self
+        # 标准错误, 重定向
+        sys.stderr = self
 
     def write(self, text):
         # 将输出的文本追加到 QTextEdit 控件中

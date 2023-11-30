@@ -41,6 +41,7 @@ class Seat:
 def parse_order_data(path):
     """获取订单数据"""
 
+
     orders = []
     order_tix_count_map = {}
     order_info = []

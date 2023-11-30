@@ -41,6 +41,7 @@ class Ui_Widget(object):
         self.leAreaSeatsFilePath = QLineEdit(Widget)
         self.leAreaSeatsFilePath.setObjectName(u"leAreaSeatsFilePath")
         self.leAreaSeatsFilePath.setGeometry(QRect(220, 50, 501, 25))
+        self.leAreaSeatsFilePath.setReadOnly(True)
         self.btnOpenAreaSeatsFile = QPushButton(Widget)
         self.btnOpenAreaSeatsFile.setObjectName(u"btnOpenAreaSeatsFile")
         self.btnOpenAreaSeatsFile.setGeometry(QRect(730, 50, 88, 25))
@@ -78,8 +79,8 @@ class Ui_Widget(object):
         self.btnOpenAreaSeatsFile.setText(QCoreApplication.translate("Widget", u"\u9009\u62e9\u6587\u4ef6", None))
         self.btnStartArrangeSeats.setText(QCoreApplication.translate("Widget", u"\u5f00\u59cb\u6392\u5ea7", None))
         self.label_3.setText(QCoreApplication.translate("Widget", u"\u533a\u57df\u4f18\u5148\u987a\u5e8f:", None))
-        self.lineEdit.setPlaceholderText(QCoreApplication.translate("Widget", u"\u4ece\u597d\u5230\u5dee\u6392\u5e8f\u3002\u4ee5\u82f1\u6587\u9017\u53f7,\u5206\u9694", None))
-        self.lineEdit_2.setPlaceholderText(QCoreApplication.translate("Widget", u"Json\u5bf9\u8c61\u683c\u5f0f\uff0c\u8bf7\u770b\u8bf4\u660e\u3002\u5982\u679c\u4e0d\u6307\u5b9a\uff0c\u5219\u9ed8\u8ba4\u6309\u5b57\u6bcd(\u6216\u6570\u5b57)\u5347\u5e8f\u6392\u5e8f", None))
+        self.lineEdit.setPlaceholderText(QCoreApplication.translate("Widget", u"\u5fc5\u586b\u3002\u4ece\u597d\u5230\u5dee\u6392\u5e8f\u3002\u4ee5\u82f1\u6587\u9017\u53f7,\u5206\u9694", None))
+        self.lineEdit_2.setPlaceholderText(QCoreApplication.translate("Widget", u"\u53ef\u9009\u3002Json\u683c\u5f0f\u3002\u5982\u4e0d\u6307\u5b9a\uff0c\u5219\u9ed8\u8ba4\u6309\u5b57\u6bcd(\u6216\u6570\u5b57)\u5347\u5e8f\u6392\u5e8f", None))
         self.label_4.setText(QCoreApplication.translate("Widget", u"\u533a\u57df\u5185\u6392(\u884c)\u6392\u5e8f:", None))
     # retranslateUi
 
