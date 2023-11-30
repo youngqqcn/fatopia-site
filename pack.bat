@@ -1,0 +1,1 @@
+cxfreeze --target-dir=dist  --target-name=fantopia-site-v1.0 --base-name=Win32Gui --icon=favicon.ico widget.py
