@@ -1,7 +1,9 @@
 #coding:utf8
 import csv
 from pprint import pprint
-
+import copy
+import os
+import pandas as pd
 class Order:
     def __init__(self, id, raw_order_id, tix_count, tix_type, order_time, pay_time, seat_ids  ):
         self.id = id
@@ -19,6 +21,17 @@ class Order:
 
     def __repr__(self):
         return 'id:{},tix_count:{}'.format(self.id, self.tix_count)
+
+class Seat:
+    def __init__(self, id, seat_id, area, row, col):
+        self.id = id
+        self.seat_id = seat_id
+        self.area = area
+        self.row = row
+        self.col = col
+
+    def __repr__(self) :
+        return 'seat_id:{}, {}-{}-{}'.format(self.seat_id, self.area, self.row, self.col)
 
 
 def parse_order_data(path):
@@ -113,7 +126,99 @@ def parse_seats_data(path, area):
     return seats_2d_array, row_index_name_map
 
 
+def convert_solution_to_csv(area, seats, orders, row_index_name_map):
 
+    # 将orders转为 以order.id 为key的dict
+    orders_map = { ord.id :  ord for ord in orders   }
+
+    ret = {}
+    for row in range(len(seats)):
+        for col in range(len(seats[row])):
+
+            # 获取 座位ID
+            id = seats[row][col]
+            if id == 'X' : continue
+
+            seat_id = -1
+            o = orders_map[id]
+            seat_id = o.seat_ids.pop(0)
+
+            # 更新
+            orders_map[id] = o
+
+            # line = '{},{},{},{},{}\n'.format(id, seat_id, area, row_index_name_map[row], col)
+            # print(line.strip())
+            # outfile.write(line)
+            ret[ seat_id ] = Seat(id=id, seat_id=seat_id, area= area,row= row_index_name_map[row],col=col )
+    return ret
+
+
+
+def output_csv_result(order_csv_path, output_csv_path, csv_data):
+
+    if not os.path.exists(order_csv_path):
+        print('file not exists , order_csv_path is {}'.format(order_csv_path))
+        return
+    else:
+        print('文件存在')
+
+    output_seats = [] # 保存当前区域的座位CSV原始数据
+    header = ''
+    with open(order_csv_path, 'r') as infile:
+
+        lines = []
+        raw_lines = infile.readlines()
+        header = raw_lines[0].strip()
+        for l in raw_lines[1:]:
+            l = l.strip()
+            lines.append(l.split(','))
+
+
+        print('lines is {}'.format( len(lines)))
+        for x in lines:
+            # print('xxxxxxxxxxxxxxxxx')
+
+            if x[0] in csv_data:
+                s = csv_data[x[0]] # 已排座位信息
+
+                t = copy.deepcopy(x)
+                t[7] = s.area  # 区域
+                t[8] = s.row  # 排
+                t[9] = s.col  # 列
+
+                # 全部转为字符串
+                for i in range(len(t)):
+                    t[i] =  '"{}"'.format( t[i] )
+                t.append( s.id )
+
+                output_seats.append(t)
+            else:
+                print('座位ID:{}不存在??'.format(x[0]))
+
+    print('all_seats len is {}'.format(len(output_seats)))
+
+    with open(output_csv_path, 'w') as outfile:
+        # w = csv.writer(outfile)
+        # w.writerow( header.split(',') )
+        outfile.write(header + '\n')
+        for row in output_seats:
+            line = ','.join(row)
+            outfile.write(line + '\n')
+            # w.writerow(row)
+
+    # # 将csv转为 excel
+    # data = pd.read_csv( output_csv_path )
+    # # 创建 Excel 写入器
+    # writer = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
+    # # 将数据写入 Excel 文件
+    # data.to_excel(writer, index=False, sheet_name='Sheet1')
+    # # 保存 Excel 文件
+    # writer.close()
+
+
+
+
+    pass
 
 
 

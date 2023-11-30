@@ -3,8 +3,8 @@
 
 import unittest
 
-from parse_data import Order, parse_order_data, parse_seats_data
-from seats import arrange_seats_v1, check_seats, convert_solution_to_csv
+from parse_data import Order, convert_solution_to_csv, output_csv_result, parse_order_data, parse_seats_data
+from seats import arrange_seats_v1, check_seats
 import copy
 
 # 编写测试类
@@ -16,38 +16,43 @@ class TestAddNumbers(unittest.TestCase):
 
         area_sorts = ['113', '114', '112', '111', '110', '109']
 
+        total_csv = {}
+        for a in area_sorts:
+            seats, row_index_name_map = parse_seats_data(path='./data/seats.csv', area=a)
+
+            # 统计可用座位数
+            seats_count = 0
+            for r in range(len(seats)):
+                for c in  range(len(seats[r])):
+                    if seats[r][c] == 'O':
+                        seats_count += 1
+
+            print()
+            print('剩余{}笔订单,{}区,{}个座位'.format(a, len(gloab_orders), seats_count))
+
+            new_seats, gloab_orders = arrange_seats_v1(area=a, seats=seats, ords=gloab_orders)
+
+            # 检查区域的座位数是否匹配
+            for r in range(len(seats)):
+                for c in  range(len(seats[r])):
+                    if seats[r][c] != 'X' :
+                        seats_count -= 1
+
+            self.assertEqual(seats_count, 0, "区域座位不匹配")
+
+            # 检查是否有不连座
+            self.assertTrue( check_seats(new_seats), '结果无效,请检查')
+
+            # 导出数据
+            tmp_csv = convert_solution_to_csv(area=a, seats=seats, orders=backup_orders, row_index_name_map=row_index_name_map )
+
+            # 合并
+            total_csv.update(tmp_csv)
+
+        # 输出csv
+        print('total len is {}'.format(len(total_csv)))
         output_path = './data/排座结果.csv'
-        with open(output_path, 'w') as outfile:
-            for a in area_sorts:
-                seats, row_index_name_map = parse_seats_data(path='./data/seats.csv', area=a)
-
-                # 统计可用座位数
-                seats_count = 0
-                for r in range(len(seats)):
-                    for c in  range(len(seats[r])):
-                        if seats[r][c] == 'O':
-                            seats_count += 1
-
-                print()
-                print('剩余{}笔订单,{}区,{}个座位'.format(a, len(gloab_orders), seats_count))
-
-                new_seats, gloab_orders = arrange_seats_v1(area=a, seats=seats, ords=gloab_orders)
-
-                # 检查区域的座位数是否匹配
-                for r in range(len(seats)):
-                    for c in  range(len(seats[r])):
-                        if seats[r][c] != 'X' :
-                            seats_count -= 1
-
-                self.assertEqual(seats_count, 0, "区域座位不匹配")
-
-                # 检查是否有不连座
-                self.assertTrue( check_seats(new_seats), '结果无效,请检查')
-
-                # 导出数据
-                convert_solution_to_csv(area=a, seats=seats, orders=backup_orders, row_index_name_map=row_index_name_map ,outfile=outfile)
-
-
+        output_csv_result('./order_data.csv', output_path, total_csv )
         pass
 
 
