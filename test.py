@@ -52,7 +52,7 @@ class TestAddNumbers(unittest.TestCase):
         # 输出csv
         print('total len is {}'.format(len(total_csv)))
         output_path = './data/排座结果.csv'
-        output_csv_result('./order_data.csv', output_path, total_csv )
+        output_csv_result('./data/order_data.csv', output_path, total_csv )
         pass
 
 

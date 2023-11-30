@@ -52,7 +52,9 @@ def parse_order_data(path):
                 line += 1
                 continue
 
-            order_id = row[4]
+            order_id = row[6]
+            if order_id == '486450130994501':
+                print('----66666666666-------')
             if order_id not in order_tix_count_map:
                 order_tix_count_map[order_id] = 1
                 order_info.append( row )
@@ -66,13 +68,14 @@ def parse_order_data(path):
     # 将order用编号代替
     cur_ord_id = 1
     for o in order_info:
+        order_id = o[6]
         ord = Order(id= '%03d'% cur_ord_id,
-                    raw_order_id = o[4],
-                    tix_count=order_tix_count_map[o[4]],
+                    raw_order_id = order_id,
+                    tix_count=order_tix_count_map[order_id],
                     order_time=o[2],
                     pay_time=0,
                     tix_type='PS',
-                    seat_ids= order_seatids_map[o[4]]
+                    seat_ids= order_seatids_map[order_id]
                     )
         orders.append(ord)
         cur_ord_id += 1
