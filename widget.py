@@ -1,8 +1,11 @@
 # This Python file uses the following encoding: utf-8
+import copy
+import json
 import logging
 import sys
 import time
 import os
+import traceback
 from typing import List
 from PySide6.QtWidgets import QApplication, QWidget, QAbstractItemView,QMessageBox
 from PySide6.QtGui import QIntValidator,QDoubleValidator,QStandardItemModel, QRegularExpressionValidator
@@ -18,8 +21,10 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QTextCursor, QFontDatabase
 from io import StringIO
-from parse_data import parse_order_data, parse_seats_data
+from parse_data import convert_solution_to_csv, output_csv_result, parse_order_data, parse_seats_data
+from seats import arrange_seats_v1, check_seats
 
+import subprocess
 
 from ui_fantopia import Ui_Widget
 
@@ -38,11 +43,6 @@ class Widget(QWidget):
         font.setPointSize(10)
         self.ui.teLog.setFont(font)
 
-        # 初始化
-        self.orders = None
-        self.seats = None
-        self.row_index_name_map = None
-
 
         # 按钮 订单座位表csv文件
         self.ui.btnOpenOrdersFile.clicked.connect( self.open_orders_file )
@@ -52,6 +52,9 @@ class Widget(QWidget):
         self.ui.btnStartArrangeSeats.clicked.connect(self.start_arrange_seats)
 
         print('====================================🔥使用说明🔥====================================')
+        print('限制条件：')
+        print('\t1) 只能针对同一票型(价格相同的票)进行排座, 如需处理不同票型,请分批处理')
+        print('')
         print('⭐座位订单表csv文件: ')
         print('\t       来源:   是fantopia座位表导出结果, 请将xlsx转成csv文件')
         print('\t       字段:   座位ID,取票时间,票型ID,票型,用户ID,邮箱,订单,区域,排数,座位号')
@@ -92,7 +95,6 @@ class Widget(QWidget):
     def open_orders_file(self):
         """打开订单表文件"""
         file_path = self.open_file_dialog(self)
-        self.ui.leOrdersFilePath.setText(file_path)
         # self.ui.teLog.append( '文件路径:{}'.format( file_path ))
 
         if file_path is None or file_path == '':
@@ -115,20 +117,18 @@ class Widget(QWidget):
             assert h[i] in l
             assert l.index( h[i] ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i] ), i)  # 必须相同
 
-
-
         # 解析订单表文件
         self.orders = parse_order_data(file_path)
 
         print('{}, 解析成功!'.format(file_path))
 
-
+        # 解析成功后再显示
+        self.ui.leOrdersFilePath.setText(file_path)
         pass
 
     def open_area_seats_file(self):
         """打开座位表文件"""
         file_path = self.open_file_dialog(self)
-        self.ui.leAreaSeatsFilePath.setText(file_path)
 
         if file_path is None or file_path == '':
             return
@@ -152,37 +152,144 @@ class Widget(QWidget):
 
 
         special_row_sorts_map = {}
-        self.seats, self.row_index_name_map = parse_seats_data(path=file_path, area='114', special_row_sorts_map=special_row_sorts_map)
+        area_name = '' # 用于测试解析文件
+        seats, row_index_name_map = parse_seats_data(path=file_path, area=area_name, special_row_sorts_map=special_row_sorts_map)
 
         print('{}, 解析成功!'.format(file_path))
+        self.ui.leAreaSeatsFilePath.setText(file_path)
         pass
 
     def start_arrange_seats(self):
         """开始排座"""
 
-        if self.orders is None:
+        orders_csv_path =  self.ui.leOrdersFilePath.text().strip()
+        area_seats_csv_path = self.ui.leAreaSeatsFilePath.text().strip()
+
+        if orders_csv_path == '':
             QMessageBox.warning(self, '提示', '请选择"座位订单表csv文件"', QMessageBox.StandardButton.Ok)
             return
-        if self.seats is None:
+        if area_seats_csv_path  == '':
             QMessageBox.warning(self, '提示', '请选择"区域-排-座位号csv文件"', QMessageBox.StandardButton.Ok)
             return
-        if self.row_index_name_map is None:
-            QMessageBox.warning(self, '提示', '请输入"区域优先顺序"', QMessageBox.StandardButton.Ok)
-            return
 
 
-        areas_sorts = self.ui.leAreaSorts.text().strip()\
+        # 获取区域优先顺序
+        tmp_sorts = self.ui.leAreaSorts.text().strip()\
                         .replace("'", '').replace('"', '')\
                         .replace(' ', '').replace('\t', '').split(',')
 
-        new_areas_sorts = [ x for x in areas_sorts if len(x) > 0]
-        print('区域优先顺序:{}'.format(new_areas_sorts))
-        if len(new_areas_sorts) == 0:
+        areas_sorts = [ x for x in tmp_sorts if len(x) > 0]
+        print('区域优先顺序:{}'.format(areas_sorts))
+        if len(areas_sorts) == 0:
             QMessageBox.warning(self, '提示', '请输入区域优先顺序', QMessageBox.StandardButton.Ok)
             return
 
 
+        # 获取特殊区域排(行)排序
+        special_area_rows_sort_map = {}
+        if True:
+            try:
+                sp = self.ui.leSpecialAreaRowSorts.text().strip()
+                if len(sp) > 0 :
+                    tmp = json.loads( sp )
+                    assert isinstance(tmp, dict), '必须json对象,即{}'
+                    if len(tmp) > 0:
+                        assert isinstance(tmp[list(tmp.keys())[0]], list)
+                    special_area_rows_sort_map = tmp
+            except Exception as e:
+                print('解析json错误信息:')
+                traceback.print_exc()
+                QMessageBox.warning(self, '错误', '区域内排(行)排序 解析错误, json格式错误', QMessageBox.StandardButton.Ok)
+                return
+        print('区域内排(行)排序: {}'.format( json.dumps(special_area_rows_sort_map) ))
+
+
+
+        #================================================================
+        # 开始安排座位
+        gloab_orders = parse_order_data(orders_csv_path)
+        backup_orders = copy.deepcopy(gloab_orders)
+
+
+        # 检查座位数 和 订单座位数是否相等
+        if True:
+
+            all_total_seats_count = 0
+            for a in areas_sorts:
+                seats, row_index_name_map = parse_seats_data(path=area_seats_csv_path, area=a, special_row_sorts_map=special_area_rows_sort_map)
+                # 统计该区可用座位数
+                for r in range(len(seats)):
+                    for c in  range(len(seats[r])):
+                        if seats[r][c] == 'O':
+                            all_total_seats_count += 1
+
+            all_total_order_seats_count = 0
+            for x in gloab_orders:
+                all_total_order_seats_count += x.tix_count
+
+
+            assert all_total_seats_count == all_total_order_seats_count , '总座位数和订单座位数不匹配,请检查数据文件'
+
+
+        total_csv = {}
+        for a in areas_sorts:
+            seats, row_index_name_map = parse_seats_data(path=area_seats_csv_path, area=a, special_row_sorts_map=special_area_rows_sort_map)
+
+            # 统计可用座位数
+            seats_count = 0
+            for r in range(len(seats)):
+                for c in  range(len(seats[r])):
+                    if seats[r][c] == 'O':
+                        seats_count += 1
+
+            print()
+            print('剩余{}笔订单,{}区,{}个座位'.format(a, len(gloab_orders), seats_count))
+
+            new_seats, gloab_orders = arrange_seats_v1(area=a, seats=seats, ords=gloab_orders)
+
+            # 检查区域的座位数是否匹配
+            for r in range(len(seats)):
+                for c in  range(len(seats[r])):
+                    if seats[r][c] != 'X' :
+                        seats_count -= 1
+
+            assert seats_count == 0, "区域座位不匹配"
+
+            # 检查是否有不连座
+            assert True == check_seats(new_seats), '结果无效,请检查'
+
+            # 导出数据
+            tmp_csv = convert_solution_to_csv(area=a, seats=seats, orders=backup_orders, row_index_name_map=row_index_name_map )
+
+            # 合并
+            total_csv.update(tmp_csv)
+
+        # 输出csv
+        print('===================')
+        output_path = './排座结果.csv'
+        output_csv_result(orders_csv_path, output_path, total_csv )
+        print('===================')
+        print('总座位数: {}'.format(len(total_csv)))
+        print('输出结果文件: {}'.format(output_path))
+        print('完成!')
+
+        QMessageBox.information(self, '提示', '排座完成!', QMessageBox.StandardButton.Ok)
+        if True:
+            # 根据操作系统选择不同的命令
+            if sys.platform.startswith('win'):
+                command = 'explorer'
+            elif sys.platform.startswith('darwin'):
+                command = 'open'
+            elif sys.platform.startswith('linux'):
+                command = 'xdg-open'
+            else:
+                # raise OSError("Unsupported operating system")
+                return
+
+            # 执行命令打开文件管理器
+            subprocess.run([command, './'])
         pass
+
 
 
 

@@ -18,12 +18,12 @@
     <rect>
      <x>730</x>
      <y>10</y>
-     <width>88</width>
+     <width>41</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>选择文件</string>
+    <string>...</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="leOrdersFilePath">
@@ -52,7 +52,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>座位订单表csv文件</string>
+    <string>座位订单表csv文件:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -65,7 +65,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>区域-排-座位号csv文件</string>
+    <string>区域-排-座位号csv文件:</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="leAreaSeatsFilePath">
@@ -89,21 +89,21 @@
     <rect>
      <x>730</x>
      <y>50</y>
-     <width>88</width>
+     <width>41</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>选择文件</string>
+    <string>...</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnStartArrangeSeats">
    <property name="geometry">
     <rect>
-     <x>890</x>
-     <y>30</y>
-     <width>131</width>
-     <height>51</height>
+     <x>920</x>
+     <y>100</y>
+     <width>201</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="text">
@@ -123,7 +123,7 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>110</x>
      <y>90</y>
      <width>101</width>
      <height>20</height>
@@ -151,7 +151,7 @@
     <rect>
      <x>220</x>
      <y>140</y>
-     <width>511</width>
+     <width>501</width>
      <height>25</height>
     </rect>
    </property>
@@ -162,9 +162,9 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>90</x>
      <y>140</y>
-     <width>141</width>
+     <width>121</width>
      <height>17</height>
     </rect>
    </property>

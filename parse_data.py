@@ -5,6 +5,7 @@
 
 import csv
 import copy
+from datetime import datetime
 import os
 import pandas as pd
 
@@ -47,6 +48,9 @@ def parse_order_data(path):
     order_info = []
     order_seatids_map = {}   # 订单id 和 座位id 映射
 
+
+    all_seat_id_set = set()  # 座位id不能重复,  但是，订单ID可以重复
+
     with open(path, 'r') as file:
         reader = csv.reader(file)
 
@@ -57,44 +61,74 @@ def parse_order_data(path):
                 line += 1
                 continue
 
+            seat_id = row[0]
+            if seat_id in all_seat_id_set:
+                raise Exception('座位订单文件的 座位ID:{}重复!请检查'.format(seat_id))
+
+            all_seat_id_set.add(seat_id)
+
             order_id = row[6]
             if order_id not in order_tix_count_map:
                 order_tix_count_map[order_id] = 1
                 order_info.append( row )
 
                 # 座位id
-                order_seatids_map[order_id] = [ row[0] ]
+                order_seatids_map[order_id] = [ seat_id]
             else:
                 order_tix_count_map[order_id] += 1
-                order_seatids_map[order_id].append( row[0] )
+                order_seatids_map[order_id].append(seat_id )
 
     # 将order用编号代替
     cur_ord_id = 1
     for o in order_info:
         order_id = o[6]
+
+        # 解析时间为时间戳
+        time_str = o[1]
+        ord_ts = datetime.strptime(time_str, '%Y/%m/%d %H:%M:%S')
+
         ord = Order(id= '%03d'% cur_ord_id,
                     raw_order_id = order_id,
                     tix_count=order_tix_count_map[order_id],
-                    order_time=o[2],
+                    order_time=ord_ts,
                     pay_time=0,
                     tix_type='PS',
                     seat_ids= order_seatids_map[order_id]
                     )
         orders.append(ord)
         cur_ord_id += 1
+
+    # 按照时间升序排序
+    orders = sorted( orders, key= lambda k : k.order_time )
+
     return orders
 
 
 def parse_seats_data(path, area, special_row_sorts_map):
     """解析csv数据, 获取该区域的数据"""
 
+
+
     area_seats = [] # 保存当前区域的座位CSV原始数据
     with open(path, 'r') as file:
         reader = csv.reader(file)
+        first_line = True
         for r in reader:
+
+            # 第1行是头，跳过
+            if first_line :
+                first_line = False
+                continue
+
+            # 如果不设置区域名，读=第一个区域， 用于测试解析文件,是否正常
+            if area == '': area = r[0]
+
             # 过滤不是该区域的数据
             if r[0] != area: continue
             area_seats.append(r)
+
+    # 所有座位, 防止重复
+    all_seat_name_set = set()
 
     # 获取该区域的行数和列数
     area_rows_counter = 0 # 当前区域的总行数
@@ -128,6 +162,12 @@ def parse_seats_data(path, area, special_row_sorts_map):
             col_name = s[2]
             if int(col_name) > area_colunms_max:
                 area_colunms_max = int(col_name)
+
+            # 保存当前座位编号，防止重复
+            cur_seat_full_name = '{}-{}-{}'.format(area, row_name, col_name )
+            if cur_seat_full_name in all_seat_name_set:
+                raise Exception("座位文件，座位{}重复".format(cur_seat_full_name))
+            all_seat_name_set.add( cur_seat_full_name)
 
     # 构造二维数组
     seats_2d_array = []
@@ -179,10 +219,8 @@ def convert_solution_to_csv(area, seats, orders, row_index_name_map):
 def output_csv_result(order_csv_path, output_csv_path, csv_data):
 
     if not os.path.exists(order_csv_path):
-        print('file not exists , order_csv_path is {}'.format(order_csv_path))
+        print('文件不存在:{}'.format(order_csv_path))
         return
-    else:
-        print('文件存在')
 
     output_seats = [] # 保存当前区域的座位CSV原始数据
     header = ''
@@ -195,13 +233,10 @@ def output_csv_result(order_csv_path, output_csv_path, csv_data):
             l = l.strip()
             lines.append(l.split(','))
 
-
-        print('lines is {}'.format( len(lines)))
         for x in lines:
-            # print('xxxxxxxxxxxxxxxxx')
-
-            if x[0] in csv_data:
-                s = csv_data[x[0]] # 已排座位信息
+            seat_id = x[0]
+            if seat_id in csv_data:
+                s = csv_data[seat_id] # 已排座位信息
 
                 t = copy.deepcopy(x)
                 t[7] = s.area  # 区域
@@ -217,28 +252,14 @@ def output_csv_result(order_csv_path, output_csv_path, csv_data):
             else:
                 print('座位ID:{}不存在??'.format(x[0]))
 
-    print('all_seats len is {}'.format(len(output_seats)))
 
     with open(output_csv_path, 'w') as outfile:
-        # w = csv.writer(outfile)
-        # w.writerow( header.split(',') )
+        # print(header)
         outfile.write(header + '\n')
         for row in output_seats:
             line = ','.join(row)
             outfile.write(line + '\n')
-            # w.writerow(row)
-
-    # # 将csv转为 excel
-    # data = pd.read_csv( output_csv_path )
-    # # 创建 Excel 写入器
-    # writer = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
-    # # 将数据写入 Excel 文件
-    # data.to_excel(writer, index=False, sheet_name='Sheet1')
-    # # 保存 Excel 文件
-    # writer.close()
-
-
-
+            # print(line)
 
     pass
 
