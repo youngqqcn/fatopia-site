@@ -50,7 +50,7 @@ def parse_order_data(path):
 
     all_seat_id_set = set()  # 座位id不能重复,  但是，订单ID可以重复
 
-    with open(path, 'r') as file:
+    with open(path, 'r', encoding='utf8') as file:
         reader = csv.reader(file)
 
         line = 0
@@ -109,7 +109,7 @@ def parse_seats_data(path, area, special_row_sorts_map):
 
 
     area_seats = [] # 保存当前区域的座位CSV原始数据
-    with open(path, 'r') as file:
+    with open(path, 'r', encoding='utf8') as file:
         reader = csv.reader(file)
         first_line = True
         for r in reader:
@@ -223,7 +223,7 @@ def output_csv_result(order_csv_path, output_csv_path, csv_data):
 
     output_seats = [] # 保存当前区域的座位CSV原始数据
     header = ''
-    with open(order_csv_path, 'r') as infile:
+    with open(order_csv_path, 'r', encoding='utf8') as infile:
 
         lines = []
         raw_lines = infile.readlines()
