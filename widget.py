@@ -38,6 +38,10 @@ class Widget(QWidget):
         font.setPointSize(10)
         self.ui.teLog.setFont(font)
 
+        # 初始化
+        self.orders = None
+        self.seats = None
+        self.row_index_name_map = None
 
 
         # 按钮 订单座位表csv文件
@@ -114,7 +118,7 @@ class Widget(QWidget):
 
 
         # 解析订单表文件
-        orders = parse_order_data(file_path)
+        self.orders = parse_order_data(file_path)
 
         print('{}, 解析成功!'.format(file_path))
 
@@ -148,7 +152,7 @@ class Widget(QWidget):
 
 
         special_row_sorts_map = {}
-        seats, row_index_name_map = parse_seats_data(path=file_path, area='114', special_row_sorts_map=special_row_sorts_map)
+        self.seats, self.row_index_name_map = parse_seats_data(path=file_path, area='114', special_row_sorts_map=special_row_sorts_map)
 
         print('{}, 解析成功!'.format(file_path))
         pass
@@ -156,7 +160,27 @@ class Widget(QWidget):
     def start_arrange_seats(self):
         """开始排座"""
 
-        raise Exception("fffffffffffffffffff")
+        if self.orders is None:
+            QMessageBox.warning(self, '提示', '请选择"座位订单表csv文件"', QMessageBox.StandardButton.Ok)
+            return
+        if self.seats is None:
+            QMessageBox.warning(self, '提示', '请选择"区域-排-座位号csv文件"', QMessageBox.StandardButton.Ok)
+            return
+        if self.row_index_name_map is None:
+            QMessageBox.warning(self, '提示', '请输入"区域优先顺序"', QMessageBox.StandardButton.Ok)
+            return
+
+
+        areas_sorts = self.ui.leAreaSorts.text().strip()\
+                        .replace("'", '').replace('"', '')\
+                        .replace(' ', '').replace('\t', '').split(',')
+
+        new_areas_sorts = [ x for x in areas_sorts if len(x) > 0]
+        print('区域优先顺序:{}'.format(new_areas_sorts))
+        if len(new_areas_sorts) == 0:
+            QMessageBox.warning(self, '提示', '请输入区域优先顺序', QMessageBox.StandardButton.Ok)
+            return
+
 
         pass
 
