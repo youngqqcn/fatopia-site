@@ -57,8 +57,6 @@ def parse_order_data(path):
                 continue
 
             order_id = row[6]
-            if order_id == '486450130994501':
-                print('----66666666666-------')
             if order_id not in order_tix_count_map:
                 order_tix_count_map[order_id] = 1
                 order_info.append( row )
