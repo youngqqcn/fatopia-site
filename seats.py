@@ -8,9 +8,6 @@
 #  使用贪心算法, 但是可能不能达到最优方案
 
 
-from pprint import pprint
-from parse_data import Order
-from parse_data import parse_order_data, parse_seats_data
 import copy
 
 

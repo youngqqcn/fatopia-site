@@ -1,26 +1,13 @@
 # This Python file uses the following encoding: utf-8
 import copy
 import json
-import logging
 import sys
-import time
 import os
 import traceback
-from typing import List
-from PySide6.QtWidgets import QApplication, QWidget, QAbstractItemView,QMessageBox
-from PySide6.QtGui import QIntValidator,QDoubleValidator,QStandardItemModel, QRegularExpressionValidator
-from PySide6.QtGui import  QStandardItem, QBrush, QColor, QIcon, QFont
-from PySide6.QtCore import QItemSelectionModel
-from PySide6.QtCore import Qt,QThread, Signal, QTimer
-from PySide6.QtSql import QSqlDatabase, QSqlQuery
-from PySide6.QtWidgets import QApplication, QFileDialog, QDialog, QProgressBar, QVBoxLayout, QPushButton,QHeaderView
-from traceback import print_exc
-
-import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QTextCursor, QFontDatabase
-from io import StringIO
+from PySide6.QtWidgets import QApplication, QWidget, QMessageBox
+from PySide6.QtGui import   QIcon, QFont
+from PySide6.QtWidgets import QApplication, QFileDialog
+from PySide6.QtWidgets import QApplication
 from parse_data import convert_solution_to_csv, output_csv_result, parse_order_data, parse_seats_data
 from seats import arrange_seats_v1, check_seats
 

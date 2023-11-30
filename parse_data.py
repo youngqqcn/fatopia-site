@@ -7,7 +7,6 @@ import csv
 import copy
 from datetime import datetime
 import os
-import pandas as pd
 
 class Order:
     def __init__(self, id, raw_order_id, tix_count, tix_type, order_time, pay_time, seat_ids  ):
