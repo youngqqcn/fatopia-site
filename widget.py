@@ -100,14 +100,16 @@ class Widget(QWidget):
 
         print( '文件路径:{}'.format( file_path ))
 
+        # 校验数据文件格式
         f = open(file_path, 'r')
         lines = f.readlines()
         f.close()
-        l = lines[0]
-
+        l = lines[0].split(',')
         header = '座位ID,取票时间,票型ID,票型,用户ID,邮箱,订单,区域,排数,座位号'
         h = header.split(',')
-        for x in h: assert x in l
+        for i in range(len(h)):
+            assert h[i] in l
+            assert l.index( h[i] ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i] ), i)  # 必须相同
 
 
 
@@ -132,6 +134,18 @@ class Widget(QWidget):
             return
 
         print( '文件路径:{}'.format( file_path ))
+
+        # 校验数据文件格式
+        f = open(file_path, 'r')
+        lines = f.readlines()
+        f.close()
+        l = lines[0].split(',')
+        header = '区域名称,排,座位'
+        h = header.split(',')
+        for i in range(len(h)):
+            assert h[i] in l
+            assert l.index( h[i] ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i] ), i)  # 必须相同
+
 
         special_row_sorts_map = {}
         seats, row_index_name_map = parse_seats_data(path=file_path, area='114', special_row_sorts_map=special_row_sorts_map)
