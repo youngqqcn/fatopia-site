@@ -2,6 +2,7 @@
 
 
 from pprint import pprint
+import traceback
 import unittest
 
 from parse_data import Order, convert_solution_to_csv, output_csv_result, parse_order_data, parse_seats_data
@@ -68,29 +69,6 @@ class TestAddNumbers(unittest.TestCase):
 
 
     def test_arrange_seats(self):
-        # orders = [
-        #     Order(id="1", tix_count= 1, tix_type= "VIP", order_time=12331, pay_time=12339),
-        #     Order(id="2", tix_count= 2, tix_type= "VIP", order_time=12341, pay_time=12349),
-        #     Order(id="3", tix_count= 3, tix_type= "VIP", order_time=12351, pay_time=12359),
-        #     Order(id="4", tix_count= 3, tix_type= "VIP", order_time=12361, pay_time=12369),
-        #     Order(id="5", tix_count= 2, tix_type= "VIP", order_time=12371, pay_time=12379),
-        #     Order(id="6", tix_count= 2, tix_type= "VIP", order_time=12381, pay_time=12389),
-        #     Order(id="7", tix_count= 3, tix_type= "VIP", order_time=12391, pay_time=12399),
-        #     Order(id="8", tix_count= 1, tix_type= "VIP", order_time=12491, pay_time=12499),
-        #     Order(id="9", tix_count= 1, tix_type= "VIP", order_time=12591, pay_time=12599),
-        # ]
-
-        # 怎么排都不能连座
-        # orders = [
-        #     Order(id="1", tix_count= 3, tix_type= "VIP", order_time=12331, pay_time=12339),
-        #     Order(id="2", tix_count= 3, tix_type= "VIP", order_time=12341, pay_time=12349),
-        #     Order(id="3", tix_count= 3, tix_type= "VIP", order_time=12351, pay_time=12359),
-        #     Order(id="4", tix_count= 3, tix_type= "VIP", order_time=12361, pay_time=12369),
-        #     Order(id="5", tix_count= 2, tix_type= "VIP", order_time=12361, pay_time=12369),
-        #     Order(id="6", tix_count= 2, tix_type= "VIP", order_time=12361, pay_time=12369),
-        #     Order(id="7", tix_count= 2, tix_type= "VIP", order_time=12361, pay_time=12369),
-        # ]
-
         # 可以连座
         orders = [
             Order(id="1", raw_order_id='1', tix_count= 3, tix_type= "VIP", order_time=12331, pay_time=12339, seat_ids=[1]),
@@ -131,6 +109,101 @@ class TestAddNumbers(unittest.TestCase):
         pprint(ords)
 
         pass
+
+    def test_arrange_seats_v2(self):
+        """测试增加间隔时间"""
+
+        success_flag = False
+        # 自动调整间隔时间, 解决那些不可能排座的情况
+        for i in range(1, 5000):
+            Order.ORDER_GROUP_GAP_SECONDS = i
+            orders = [
+                Order(id="6", raw_order_id='6', tix_count= 1, tix_type= "VIP", order_time=12031, pay_time=12369, seat_ids=[6]),
+                Order(id="9", raw_order_id='6', tix_count= 1, tix_type= "VIP", order_time=12031, pay_time=12369, seat_ids=[6]),
+                Order(id="7", raw_order_id='6', tix_count= 1, tix_type= "VIP", order_time=12031, pay_time=12369, seat_ids=[6]),
+                Order(id="1", raw_order_id='1', tix_count= 3, tix_type= "VIP", order_time=12331, pay_time=12339, seat_ids=[1]),
+                Order(id="2", raw_order_id='2', tix_count= 2, tix_type= "VIP", order_time=12341, pay_time=12349, seat_ids=[2]),
+                Order(id="3", raw_order_id='3', tix_count= 3, tix_type= "VIP", order_time=12351, pay_time=12359, seat_ids=[3]),
+                Order(id="4", raw_order_id='4', tix_count= 3, tix_type= "VIP", order_time=12361, pay_time=12369, seat_ids=[4]),
+                Order(id="5", raw_order_id='5', tix_count= 2, tix_type= "VIP", order_time=12371, pay_time=12369, seat_ids=[5]),
+                Order(id="8", raw_order_id='7', tix_count= 2, tix_type= "VIP", order_time=12381, pay_time=12369, seat_ids=[7]),
+            ]
+            orders = sorted(orders)
+
+            # 生成 3x6 的 的二维数组
+            # seats = [['']*3]*6    # 这种方式有问题，内部用的引用，他妈的
+            seats = [
+                ['O', 'O', 'O'],
+                ['O', 'O', 'O'],
+                ['O', 'O', 'O'],
+                ['O', 'O', 'O'],
+                ['O', 'O', 'O'],
+                ['O', 'O', 'O']
+            ]
+
+            try:
+                arrange_seats_v1('A', seats, orders)
+
+                # 一切正常则继续
+                print('订单分组间隔时间: {}'.format(i))
+
+                success_flag = True
+
+                break
+            except Exception as e:
+                print('继续')
+                continue
+
+        self.assertTrue(success_flag)
+
+    def test_arrange_seats_v3(self):
+        """测试一行中间有间断"""
+
+        success_flag = False
+        # 自动调整间隔时间, 解决那些不可能排座的情况
+        for i in range(1, 5000):
+            Order.ORDER_GROUP_GAP_SECONDS = i
+            orders = [
+                Order(id="6", raw_order_id='6', tix_count= 1, tix_type= "VIP", order_time=12031, pay_time=12369, seat_ids=[6]),
+                Order(id="9", raw_order_id='6', tix_count= 1, tix_type= "VIP", order_time=12031, pay_time=12369, seat_ids=[6]),
+                Order(id="7", raw_order_id='6', tix_count= 1, tix_type= "VIP", order_time=12031, pay_time=12369, seat_ids=[6]),
+                Order(id="1", raw_order_id='1', tix_count= 3, tix_type= "VIP", order_time=12331, pay_time=12339, seat_ids=[1]),
+                Order(id="2", raw_order_id='2', tix_count= 2, tix_type= "VIP", order_time=12341, pay_time=12349, seat_ids=[2]),
+                Order(id="3", raw_order_id='3', tix_count= 3, tix_type= "VIP", order_time=12351, pay_time=12359, seat_ids=[3]),
+                Order(id="4", raw_order_id='4', tix_count= 3, tix_type= "VIP", order_time=12361, pay_time=12369, seat_ids=[4]),
+                Order(id="5", raw_order_id='5', tix_count= 2, tix_type= "VIP", order_time=12371, pay_time=12369, seat_ids=[5]),
+                # Order(id="8", raw_order_id='7', tix_count= 2, tix_type= "VIP", order_time=12381, pay_time=12369, seat_ids=[7]),
+            ]
+            orders = sorted(orders)
+
+
+            # 生成 3x6 的 的二维数组
+            # seats = [['']*3]*6    # 这种方式有问题，内部用的引用，他妈的
+            seats = [
+                ['O', 'X', 'O'],
+                ['X', 'O', 'O'],
+                ['O', 'O', 'O'],
+                ['O', 'O', 'O'],
+                ['O', 'O', 'O'],
+                ['O', 'O', 'O']
+            ]
+
+            try:
+                arrange_seats_v1('A', seats, orders)
+
+                # 一切正常则继续
+                print('订单分组间隔时间: {}'.format(i))
+
+                success_flag = True
+
+                break
+            except Exception as e:
+                traceback.print_exc()
+                continue
+
+        self.assertTrue(success_flag)
+
+
 
 
 

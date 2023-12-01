@@ -24,34 +24,73 @@ def arrange_seats_v1(area, seats, ords):
 
     # 使用贪心算法
     for row in range( len(seats) ):
-        # 当前行剩余数量
-        left_pos_count = 0
+        # 当前行 总剩余数量
+        current_row_total_left_pos_count = 0
         for col in range(len(seats[0])):
             if seats[row][col] == 'O':
-                left_pos_count += 1
+                current_row_total_left_pos_count += 1
 
-        # 从订单列表中获取  最大且可安排的 的订单
-        selected_ords = []
-        for i in range(len(orders_queue)):
-            o = orders_queue[i]
+        # 列游标
+        column_cursor_start_index = 0
 
-            # TODO: 假设中间都是连续的不间断的, 如果是间断的则用分治算法
-            if o.tix_count <= left_pos_count:
-                selected_ords.append(o)
-                left_pos_count -= o.tix_count
+        loop_count = 0
+        # 搞这么复杂是为了处理中间间断了的情况, 例如： O,O,O,X,X,O,O,O,X  就有2个可用区间
+        while current_row_total_left_pos_count > 0 :
+            loop_count += 1
+            if loop_count > 10000:
+                raise Exception("卧槽, 死循环了!")
 
-        # 删除元素
-        for o in selected_ords:
-            orders_queue.remove(o)
+            # 当前连续区间剩余座位数
+            cur_continious_left_pos_count = 0
+            for col in range(column_cursor_start_index, len(seats[0])):
+                if seats[row][col] == 'O':
+                    cur_continious_left_pos_count += 1
+                if seats[row][col] == 'X':
+                    break
 
-        # 安排座位
-        start_col = 0
-        for o in selected_ords:
-            for i in range(o.tix_count):
-                if seats[row][start_col + i] == 'X':
-                    raise Exception("====FUCK======")
-                seats[row][start_col + i] = o.id
-            start_col += o.tix_count
+            # 从订单列表中获取  最大且可安排的 的订单
+            selected_ords = []
+            for i in range(len(orders_queue)):
+                o = orders_queue[i]
+
+                if o.tix_count <= cur_continious_left_pos_count:
+                    selected_ords.append(o)
+                    # 当前连续区间的可用数，减少
+                    cur_continious_left_pos_count -= o.tix_count
+                    # 当前行总的可座位数,减少
+                    current_row_total_left_pos_count -= o.tix_count
+
+            # 如果没有找到合适的订单
+            if cur_continious_left_pos_count != 0:
+                raise Exception('======!不可排座,请调整"订单分组间隔时间"后再试')
+
+            # 删除元素
+            for o in selected_ords:
+                orders_queue.remove(o)
+
+            # 安排座位
+            start_col = column_cursor_start_index
+            for o in selected_ords:
+                for i in range(o.tix_count):
+                    if seats[row][start_col + i] == 'X':
+                        raise Exception("====FUCK======")
+                    seats[row][start_col + i] = o.id
+                start_col += o.tix_count
+
+            # 如果后面还有可用的， 把 column_cursor_index 移到下一个可用区间的开头
+            if current_row_total_left_pos_count > 0:
+                while column_cursor_start_index < len(seats[0]) :
+                    if seats[row][column_cursor_start_index] == 'O':
+                        break # while
+                    column_cursor_start_index += 1
+
+            print('=========> current_row_total_left_pos_count = {}'.format(current_row_total_left_pos_count))
+            print('=========> column_cursor_start_index = {}'.format(column_cursor_start_index))
+            print('=========> row = {}'.format(row))
+            show_solution(area, seats)
+            pass
+
+
 
     # 打印结果
     show_solution(area, seats)
@@ -64,7 +103,6 @@ def arrange_seats_v1(area, seats, ords):
 
 def check_seats(seats):
     """检查是否有不连座的"""
-    #TODO: 检查是否有漏
 
     row_map = {}
     for row in range(len(seats)):
@@ -73,7 +111,7 @@ def check_seats(seats):
             id = seats[row][col]
             if id == 'X': continue
             if id == 'O':
-                print('有空位置')
+                print('有空位置: {}行{}列'.format(row, col))
                 return False
             if id not in row_map:
                 row_map[id] = set([row])
