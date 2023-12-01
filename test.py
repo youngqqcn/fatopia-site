@@ -1,6 +1,7 @@
 #coding:utf8
 
 
+from pprint import pprint
 import unittest
 
 from parse_data import Order, convert_solution_to_csv, output_csv_result, parse_order_data, parse_seats_data
@@ -11,6 +12,9 @@ import copy
 class TestAddNumbers(unittest.TestCase):
 
     def test_arrange_seats_v1(self):
+
+        # Order.ORDER_GROUP_GAP_SECONDS = 666
+
         gloab_orders = parse_order_data('./data/order_data.csv')
         backup_orders = copy.deepcopy(gloab_orders)
 
@@ -107,6 +111,24 @@ class TestAddNumbers(unittest.TestCase):
         seats = [['O' for _ in range(cols)] for _ in range(rows)]
 
         arrange_seats_v1('A', seats, orders)
+
+        pass
+
+
+    def test_orders_sort(self):
+        orders = [
+            Order(id="1", raw_order_id='1', tix_count= 1, tix_type= "VIP", order_time=1, pay_time=0, seat_ids=[1]),
+            Order(id="2", raw_order_id='2', tix_count= 3, tix_type= "VIP", order_time=66, pay_time=0, seat_ids=[2]),
+            Order(id="3", raw_order_id='3', tix_count= 9, tix_type= "VIP", order_time=100, pay_time=0, seat_ids=[3]),
+            Order(id="4", raw_order_id='4', tix_count= 3, tix_type= "VIP", order_time=2, pay_time=0, seat_ids=[4]),
+            Order(id="5", raw_order_id='5', tix_count= 2, tix_type= "VIP", order_time=6, pay_time=0, seat_ids=[5]),
+            Order(id="6", raw_order_id='6', tix_count= 4, tix_type= "VIP", order_time=9, pay_time=0, seat_ids=[6]),
+            Order(id="7", raw_order_id='7', tix_count= 5, tix_type= "VIP", order_time=8, pay_time=0, seat_ids=[7]),
+            Order(id="8", raw_order_id='8', tix_count= 6, tix_type= "VIP", order_time=7, pay_time=0, seat_ids=[8]),
+        ]
+
+        ords = sorted(orders)
+        pprint(ords)
 
         pass
 

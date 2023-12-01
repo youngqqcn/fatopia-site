@@ -17,13 +17,13 @@
    <property name="geometry">
     <rect>
      <x>730</x>
-     <y>10</y>
-     <width>41</width>
-     <height>25</height>
+     <y>7</y>
+     <width>71</width>
+     <height>27</height>
     </rect>
    </property>
    <property name="text">
-    <string>...</string>
+    <string>选择文件</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="leOrdersFilePath">
@@ -45,8 +45,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>10</y>
+     <x>75</x>
+     <y>12</y>
      <width>141</width>
      <height>17</height>
     </rect>
@@ -58,8 +58,8 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>50</y>
+     <x>51</x>
+     <y>45</y>
      <width>161</width>
      <height>20</height>
     </rect>
@@ -72,7 +72,7 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>50</y>
+     <y>43</y>
      <width>501</width>
      <height>25</height>
     </rect>
@@ -88,22 +88,22 @@
    <property name="geometry">
     <rect>
      <x>730</x>
-     <y>50</y>
-     <width>41</width>
-     <height>25</height>
+     <y>42</y>
+     <width>71</width>
+     <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>...</string>
+    <string>选择文件</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnStartArrangeSeats">
    <property name="geometry">
     <rect>
-     <x>920</x>
-     <y>100</y>
-     <width>201</width>
-     <height>71</height>
+     <x>870</x>
+     <y>70</y>
+     <width>251</width>
+     <height>101</height>
     </rect>
    </property>
    <property name="text">
@@ -114,9 +114,9 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>180</y>
+     <y>190</y>
      <width>1091</width>
-     <height>561</height>
+     <height>551</height>
     </rect>
    </property>
   </widget>
@@ -124,7 +124,7 @@
    <property name="geometry">
     <rect>
      <x>110</x>
-     <y>90</y>
+     <y>80</y>
      <width>101</width>
      <height>20</height>
     </rect>
@@ -137,7 +137,7 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>90</y>
+     <y>80</y>
      <width>501</width>
      <height>25</height>
     </rect>
@@ -150,7 +150,7 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>140</y>
+     <y>118</y>
      <width>501</width>
      <height>25</height>
     </rect>
@@ -162,14 +162,46 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>140</y>
+     <x>85</x>
+     <y>120</y>
      <width>121</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
     <string>区域内排(行)排序:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>56</x>
+     <y>150</y>
+     <width>161</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>订单分组间隔时间(秒):</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinBoxOrderGroupGasSeconds">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>152</y>
+     <width>81</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="suffix">
+    <string/>
+   </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
+   <property name="maximum">
+    <number>99999</number>
    </property>
   </widget>
  </widget>

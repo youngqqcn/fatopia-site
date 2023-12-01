@@ -11,20 +11,6 @@
 import copy
 
 
-# gloab_orders = parse_order_data('./data/order_data.csv')
-
-
-def sort_by_time(ods):
-    # 根据订单的时间排序, 默认是升序排序的
-    # ods = sorted(ods, key=lambda o: o.create_time, reverse=False)
-    return ods
-
-def sort_by_tix_count(ods):
-    """根据订单的票数排序"""
-    # 按照订单降序排序
-    # ods = sorted(ods, key=lambda o: o.tix_count, reverse=True)
-    return ods
-
 
 def arrange_seats_v1(area, seats, ords):
     """

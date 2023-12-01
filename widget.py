@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication, QWidget, QMessageBox
 from PySide6.QtGui import   QIcon, QFont
 from PySide6.QtWidgets import QApplication, QFileDialog
 from PySide6.QtWidgets import QApplication
-from parse_data import convert_solution_to_csv, output_csv_result, parse_order_data, parse_seats_data
+from parse_data import Order, convert_solution_to_csv, output_csv_result, parse_order_data, parse_seats_data
 from seats import arrange_seats_v1, check_seats
 
 import subprocess
@@ -22,7 +22,7 @@ class Widget(QWidget):
         self.ui = Ui_Widget()
         self.ui.setupUi(self)
 
-        self.setWindowTitle("Fantopia排座工具v1.0.0-2023-11-30")
+        self.setWindowTitle("Fantopia排座工具v1.1.0")
         self.setWindowIcon(QIcon('favicon.ico'))
         self.setFixedSize(self.width(), self.height())
 
@@ -37,6 +37,29 @@ class Widget(QWidget):
 
         # 开始排座
         self.ui.btnStartArrangeSeats.clicked.connect(self.start_arrange_seats)
+
+        self.ui.leSpecialAreaRowSorts.textEdited.connect(self.handle_text_edited)
+        self.ui.leAreaSorts.textEdited.connect(self.handle_text_edited)
+
+        # 输出帮助信息
+        self.show_help_message()
+        pass
+
+    def handle_text_edited(self, text):
+        text = str(text).replace(' ', '').replace('\t', ' ').replace('\n', '').replace('\r', '')
+        if self.sender() == self.ui.leSpecialAreaRowSorts:
+            text = text.replace("'", '"')
+            self.ui.leSpecialAreaRowSorts.setText(text)
+
+        if self.sender() == self.ui.leAreaSorts:
+            text = text.replace('"', '').replace("'", '')
+            self.ui.leAreaSorts.setText(text)
+
+
+
+    @staticmethod
+    def show_help_message():
+        """输出帮助信息"""
 
         print('====================================🔥使用说明🔥====================================')
         print('限制条件：')
@@ -57,6 +80,12 @@ class Widget(QWidget):
         print('\n')
         print('⭐特殊区域行排序: ')
         print('\t输入示例json格式: {"113":["C","B","D","A"], "109":["C","A","B"]}')
+        print('\n')
+        print('⭐订单分组间隔时间(秒): ')
+        print('\t说明: 比如设置n秒, 订单排序算法如下:')
+        print('\t\t第1步: 首先默认按照订单时间升序排序')
+        print('\t\t第2步: 按照间隔n秒一组, 对所有订单进行分组')
+        print('\t\t第3步: 对所有组进行组内排序, 同一组内按照订单的票数量进行降序排序, 即票多优先')
         print('==============================================================================')
 
         pass
@@ -161,10 +190,7 @@ class Widget(QWidget):
 
 
         # 获取区域优先顺序
-        tmp_sorts = self.ui.leAreaSorts.text().strip()\
-                        .replace("'", '').replace('"', '')\
-                        .replace(' ', '').replace('\t', '').split(',')
-
+        tmp_sorts = self.ui.leAreaSorts.text().strip().split(',')
         areas_sorts = [ x for x in tmp_sorts if len(x) > 0]
         print('区域优先顺序:{}'.format(areas_sorts))
         if len(areas_sorts) == 0:
@@ -193,10 +219,23 @@ class Widget(QWidget):
 
 
         #================================================================
+        # 获取订单分组间隔时间
+        if True:
+            order_group_gap_secs = self.ui.spinBoxOrderGroupGasSeconds.value()
+            if order_group_gap_secs <= 0:
+                order_group_gap_secs = 1
+
+            # 设置间隔时间
+            Order.ORDER_GROUP_GAP_SECONDS = order_group_gap_secs
+
         # 开始安排座位
         gloab_orders = parse_order_data(orders_csv_path)
-        backup_orders = copy.deepcopy(gloab_orders)
 
+        # 对订单排序
+        gloab_orders = sorted(gloab_orders)
+
+        # 备份原始订单, 方便后续操作
+        backup_orders = copy.deepcopy(gloab_orders)
 
         # 检查座位数 和 订单座位数是否相等
         if True:
@@ -213,7 +252,6 @@ class Widget(QWidget):
             all_total_order_seats_count = 0
             for x in gloab_orders:
                 all_total_order_seats_count += x.tix_count
-
 
             assert all_total_seats_count == all_total_order_seats_count , '总座位数和订单座位数不匹配,请检查数据文件'
 
