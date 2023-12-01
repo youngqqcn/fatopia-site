@@ -9,22 +9,35 @@ from datetime import datetime
 import os
 
 class Order:
+
+    # 订单分组间隔时间(s)
+    ORDER_GROUP_GAP_SECONDS = 1
+
     def __init__(self, id, raw_order_id, tix_count, tix_type, order_time, pay_time, seat_ids  ):
-        self.id = id
-        self.raw_order_id = raw_order_id
-        self.tix_count = tix_count
-        self.tix_type = tix_type
-        self.order_time = order_time
-        self.pay_time = pay_time
-        self.seat_ids = seat_ids
+        self.id = str(id)
+        self.raw_order_id = str(raw_order_id)
+        self.tix_count = int(tix_count)
+        self.tix_type = str(tix_type)
+        self.order_time = int(order_time)
+        self.pay_time = int(pay_time)
+        self.seat_ids = list(seat_ids)
 
         pass
 
     def __lt__(self, other):
+        """对订单排序"""
+
+        # 如果时间间隔非常小,则再按照订单的票数排序, 这样有助于后续贪心算法
+        # gas_seconds = 17
+        if  abs( self.order_time - other.order_time ) <= self.ORDER_GROUP_GAP_SECONDS:
+            return self.tix_count > other.tix_count
         return self.order_time < other.order_time
 
     def __repr__(self):
         return 'id:{},tix_count:{}'.format(self.id, self.tix_count)
+
+
+
 
 class Seat:
     def __init__(self, id, seat_id, area, row, col):
@@ -41,6 +54,7 @@ class Seat:
 def parse_order_data(path):
     """获取订单数据"""
 
+    print('ORDER_GROUP_GAP_SECONDS is {}'.format(Order.ORDER_GROUP_GAP_SECONDS))
 
     orders = []
     order_tix_count_map = {}
@@ -85,6 +99,7 @@ def parse_order_data(path):
         # 解析时间为时间戳
         time_str = o[1]
         ord_ts = datetime.strptime(time_str, '%Y/%m/%d %H:%M:%S')
+        ord_ts = int(ord_ts.timestamp())
 
         ord = Order(id= '%03d'% cur_ord_id,
                     raw_order_id = order_id,
@@ -97,16 +112,12 @@ def parse_order_data(path):
         orders.append(ord)
         cur_ord_id += 1
 
-    # 按照时间升序排序
-    orders = sorted( orders, key= lambda k : k.order_time )
-
+    
     return orders
 
 
 def parse_seats_data(path, area, special_row_sorts_map):
     """解析csv数据, 获取该区域的数据"""
-
-
 
     area_seats = [] # 保存当前区域的座位CSV原始数据
     with open(path, 'r', encoding='utf-8') as file:
