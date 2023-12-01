@@ -1,5 +1,14 @@
-# fatopia-site
-fantopia排座
+# fatopia-seats
+
+## windows运行
+
+- 安装 `python3.11` 或以上
+- 安装依赖库: `pip install -r requirements.txt`
+- `python widget.py`
+
+
+
+
 
 
 ## 需求描述
@@ -139,86 +148,3 @@ A, B, C       // 排， 已排序
 ## 算法设计
 
 - 优先级定义： `连座优先级 > 时间优先级`
-- 总体思路：
-  - 第0步： 按照**时间优先**进行编排, 如果可解，则结束; 如果没有可解方案,则进行下一步
-  - 第1步： 先按照贪心算法进行**连座优先**进行编排; 如果可解，则结束; 如果没有可解方案, 则进行下一步
-
-
-- 时间优先：
-
-```python
-
-
-
-def sort_by_time(ods):
-    # 根据订单的时间排序
-    return ods
-
-
-def arrange_seats():
-    a = [ROW][COL]
-
-    ods = sort_by_time(ods)
-
-    for ord in ods:
-        ord_tix_count = ord.tix_count
-        ord_id = ord.id
-
-        for row in range(len(a))
-            # 在本排中安排座位
-            for col in range(len(a[0]))
-                if a[row][col] != '':
-                    start_idx = col
-                    end_idx = col + ord_tix_count
-                    if end_idx < len(len(a[0])):
-                        # 占座
-                        for x in range(start_idx, end_idx + 1):
-                            a[row][x] = ord_id
-                        break
-
-```
-
-
-
-
-- 回溯法:
-```
-solve(X,n,m):
-   global bestVal <- infinity
-   global bestSol <- null
-   backtracking(X,new Solution(n,m))
-
-backtracking(X,solution):
-   if (X is empty):
-       gaps <- solution.numGaps()
-       if (gaps < bestVal):
-            bestVal <- gaps
-            bestSol <- solution
-       return
-   temp <- X.first
-   X.removeFirst()
-   for i from 0 to m:
-       solution.addToLine(i,temp)
-       backtracking(X,solution)
-       solution.removeFromLine(i,temp)
-   X.addFirst(temp)
-```
-
-
-回溯法模板：
-
-```python
-void backtrace(可选列表, 已选列表){
-    if(到达结束条件){
-        res.push_back(已选列表);
-        return;
-    }
-
-    for(选择 : 选择列表){
-    	排除无效的选择（剪枝）
-        做选择;
-        backtrace(可选列表, 已选列表);
-        撤销选择;
-    }
-}
-```
