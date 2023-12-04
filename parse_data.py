@@ -97,6 +97,7 @@ def parse_order_data(path):
 
         # 解析时间为时间戳
         time_str = o[1]
+        time_str = str(time_str).replace("'", '').replace('"', '')
         ord_ts = datetime.strptime(time_str, '%Y/%m/%d %H:%M:%S')
         ord_ts = int(ord_ts.timestamp())
 
