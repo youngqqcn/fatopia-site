@@ -69,7 +69,7 @@ class Ui_Widget(object):
         self.spinBoxOrderGroupGasSeconds = QSpinBox(Widget)
         self.spinBoxOrderGroupGasSeconds.setObjectName(u"spinBoxOrderGroupGasSeconds")
         self.spinBoxOrderGroupGasSeconds.setGeometry(QRect(220, 152, 81, 30))
-        self.spinBoxOrderGroupGasSeconds.setMinimum(1)
+        self.spinBoxOrderGroupGasSeconds.setMinimum(0)
         self.spinBoxOrderGroupGasSeconds.setMaximum(99999)
 
         self.retranslateUi(Widget)
