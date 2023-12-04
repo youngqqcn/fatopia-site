@@ -223,7 +223,7 @@ class Widget(QWidget):
         if True:
             order_group_gap_secs = self.ui.spinBoxOrderGroupGasSeconds.value()
             if order_group_gap_secs <= 0:
-                order_group_gap_secs = 1
+                order_group_gap_secs = 0
 
             # 设置间隔时间
             Order.ORDER_GROUP_GAP_SECONDS = order_group_gap_secs
