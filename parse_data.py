@@ -220,7 +220,7 @@ def convert_solution_to_csv(area, seats, orders, row_index_name_map):
             # line = '{},{},{},{},{}\n'.format(id, seat_id, area, row_index_name_map[row], col)
             # print(line.strip())
             # outfile.write(line)
-            ret[ seat_id ] = Seat(id=id, seat_id=seat_id, area= area,row= row_index_name_map[row],col=col )
+            ret[ seat_id ] = Seat(id=id, seat_id=seat_id, area= area,row= row_index_name_map[row],col=col + 1 )
     return ret
 
 
