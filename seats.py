@@ -84,10 +84,10 @@ def arrange_seats_v1(area, seats, ords):
                         break # while
                     column_cursor_start_index += 1
 
-            print('=========> current_row_total_left_pos_count = {}'.format(current_row_total_left_pos_count))
-            print('=========> column_cursor_start_index = {}'.format(column_cursor_start_index))
-            print('=========> row = {}'.format(row))
-            show_solution(area, seats)
+            # print('=========> current_row_total_left_pos_count = {}'.format(current_row_total_left_pos_count))
+            # print('=========> column_cursor_start_index = {}'.format(column_cursor_start_index))
+            # print('=========> row = {}'.format(row))
+            # show_solution(area, seats)
             pass
 
 
