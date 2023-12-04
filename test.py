@@ -1,7 +1,9 @@
 #coding:utf8
 
 
+from datetime import datetime, timedelta
 from pprint import pprint
+import random
 import traceback
 import unittest
 
@@ -202,6 +204,31 @@ class TestAddNumbers(unittest.TestCase):
                 continue
 
         self.assertTrue(success_flag)
+
+
+
+    def test_make_dummy_order_time(self):
+
+        with open('./data/order_data.csv', 'r') as infile , open('./data/dummy_order_data.csv', 'w') as outfile:
+            alllines = infile.readlines()
+            outfile.write(alllines[0] )
+            alllines = alllines[1:]
+            line_count = 1
+            for line in alllines:
+                line = line.split(',')
+                ord_time = line[1]
+                print(ord_time)
+                ord_ts = datetime.strptime(ord_time, '%Y/%m/%d %H:%M:%S')
+                ord_ts += timedelta(seconds=line_count)
+
+                new_ord_time = ord_ts.strftime('%Y/%m/%d %H:%M:%S')
+                line[1] = new_ord_time
+                line = ','.join(line)
+                outfile.write(line )
+                line_count += 1
+
+
+        pass
 
 
 
