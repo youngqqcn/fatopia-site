@@ -11,7 +11,7 @@ import os
 class Order:
 
     # 订单分组间隔时间(s)
-    ORDER_GROUP_GAP_SECONDS = 1
+    ORDER_GROUP_GAP_SECONDS = 0
 
     def __init__(self, id, raw_order_id, tix_count, tix_type, order_time, pay_time, seat_ids  ):
         self.id = str(id)
@@ -28,7 +28,6 @@ class Order:
         """对订单排序"""
 
         # 如果时间间隔非常小,则再按照订单的票数排序, 这样有助于后续贪心算法
-        # gas_seconds = 17
         if  abs( self.order_time - other.order_time ) <= self.ORDER_GROUP_GAP_SECONDS:
             return self.tix_count > other.tix_count
         return self.order_time < other.order_time
@@ -112,7 +111,7 @@ def parse_order_data(path):
         orders.append(ord)
         cur_ord_id += 1
 
-    
+
     return orders
 
 
