@@ -232,7 +232,7 @@ class TestAddNumbers(unittest.TestCase):
                 # line = ','.join(line)
 
                 for n in range(len(line)):
-                    line[n] = "'{}'".format(line[n])
+                    line[n] = "{}".format(line[n])
 
 
                 output  = ','.join(line)
