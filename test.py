@@ -214,18 +214,32 @@ class TestAddNumbers(unittest.TestCase):
             outfile.write(alllines[0] )
             alllines = alllines[1:]
             line_count = 1
+            orders = {}
             for line in alllines:
+                line = line.strip()
                 line = line.split(',')
                 ord_time = line[1]
-                print(ord_time)
-                ord_ts = datetime.strptime(ord_time, '%Y/%m/%d %H:%M:%S')
-                ord_ts += timedelta(seconds=line_count)
 
-                new_ord_time = ord_ts.strftime('%Y/%m/%d %H:%M:%S')
-                line[1] = new_ord_time
-                line = ','.join(line)
-                outfile.write(line )
+                ord_id = line[6]
+                if ord_id not in orders:
+                    ord_ts = datetime.strptime(ord_time, '%Y/%m/%d %H:%M:%S')
+                    ord_ts += timedelta(seconds=line_count)
+                    new_ord_time = ord_ts.strftime('%Y/%m/%d %H:%M:%S')
+                    orders[ord_id] = new_ord_time
+
+                line[1] = orders[ord_id]
+
+                # line = ','.join(line)
+
+                for n in range(len(line)):
+                    line[n] = "'{}'".format(line[n])
+
+
+                output  = ','.join(line)
+                outfile.write(output  + '\n')
                 line_count += 1
+
+
 
 
         pass
