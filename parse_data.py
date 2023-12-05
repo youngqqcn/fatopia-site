@@ -28,7 +28,7 @@ class Order:
         """对订单排序"""
 
         # 如果时间间隔非常小,则再按照订单的票数排序, 这样有助于后续贪心算法
-        if  abs( self.order_time - other.order_time ) <= self.ORDER_GROUP_GAP_SECONDS:
+        if  abs( self.order_time - other.order_time ) < self.ORDER_GROUP_GAP_SECONDS:
             return self.tix_count > other.tix_count
         return self.order_time < other.order_time
 
