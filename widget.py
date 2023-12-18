@@ -126,12 +126,13 @@ class Widget(QWidget):
         f = open(file_path, 'r', encoding='utf-8')
         lines = f.readlines()
         f.close()
-        l = lines[0].split(',')
+        l = lines[0].strip().split(',')
         header = '座位ID,取票时间,票型ID,票型,用户ID,邮箱,订单,区域,排数,座位号'
         h = header.split(',')
         for i in range(len(h)):
-            assert h[i] in l
-            assert l.index( h[i] ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i] ), i)  # 必须相同
+            if len(h[i].strip()) == '': continue
+            assert h[i].strip() in l, '数据不匹配, {} 不存在'
+            assert l.index( h[i].strip() ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i].strip() ), i)  # 必须相同
 
         # 解析订单表文件
         self.orders = parse_order_data(file_path)
@@ -159,12 +160,13 @@ class Widget(QWidget):
         f = open(file_path, 'r', encoding='utf-8')
         lines = f.readlines()
         f.close()
-        l = lines[0].split(',')
+        l = lines[0].strip().split(',')
         header = '区域名称,排,座位'
         h = header.split(',')
         for i in range(len(h)):
-            assert h[i] in l
-            assert l.index( h[i] ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i] ), i)  # 必须相同
+            if len(h[i].strip()) == '': continue
+            assert h[i].strip() in l, '数据不匹配, {} 不存在'
+            assert l.index( h[i].strip() ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i].strip() ), i)  # 必须相同
 
 
         special_row_sorts_map = {}
@@ -223,7 +225,7 @@ class Widget(QWidget):
         if True:
             order_group_gap_secs = self.ui.spinBoxOrderGroupGasSeconds.value()
             if order_group_gap_secs <= 0:
-                order_group_gap_secs = 0
+                order_group_gap_secs = 1
 
             # 设置间隔时间
             Order.ORDER_GROUP_GAP_SECONDS = order_group_gap_secs
