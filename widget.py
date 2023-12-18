@@ -131,7 +131,7 @@ class Widget(QWidget):
         h = header.split(',')
         for i in range(len(h)):
             if len(h[i].strip()) == '': continue
-            assert h[i].strip() in l, '数据不匹配, {} 不存在'
+            assert h[i].strip() in l, '数据不匹配, {} 不存在'.format(h[i].strip())
             assert l.index( h[i].strip() ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i].strip() ), i)  # 必须相同
 
         # 解析订单表文件
@@ -161,11 +161,11 @@ class Widget(QWidget):
         lines = f.readlines()
         f.close()
         l = lines[0].strip().split(',')
-        header = '区域名称,排,座位'
+        header = '区域名称,排,座位号'
         h = header.split(',')
         for i in range(len(h)):
             if len(h[i].strip()) == '': continue
-            assert h[i].strip() in l, '数据不匹配, {} 不存在'
+            assert h[i].strip() in l, '数据不匹配, {} 不存在'.format(h[i].strip())
             assert l.index( h[i].strip() ) == i , '{}!={},数据顺序不匹配'.format(l.index( h[i].strip() ), i)  # 必须相同
 
 
